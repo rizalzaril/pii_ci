@@ -15,7 +15,8 @@
         <th scope="col">#</th>
         <th scope="col">Kode</th>
         <th scope="col">Keterangan</th>
-        <th scope="col">Persen</th>
+        <th scope="col">Angka awal (%)</th>
+        <th scope="col">Hasil akhir (%)</th>
         <th scope="col">Aksi</th>
       </tr>
     </thead>
@@ -28,6 +29,7 @@
           <th scope="row"><?= $no++ ?></th>
           <td><?= $list->kode ?></td>
           <td><?= htmlspecialchars_decode($list->keter)  ?></td>
+          <td><?= $list->nilai_awal . '%' ?></td>
           <td><?= $list->persen . '%' ?></td>
           <td>
             <a class="btn btn-primary btn-sm" href="<?= base_url('/dashboard/edit_data/' . $list->id) ?>"><i class="fas fa-edit"></i></a>

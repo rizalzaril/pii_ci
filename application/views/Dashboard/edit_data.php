@@ -30,9 +30,17 @@
           </div>
         </div>
 
+
+        <div class="mb-3 row">
+          <label for="inputGrade" class="col-sm-2 col-form-label">Angka awal (%)</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="inputGrade" value="<?= htmlspecialchars_decode($r->nilai_awal)  ?>" name="nilai_awal">
+          </div>
+        </div>
+
         <!-- Input Persen -->
         <div class="mb-3 row">
-          <label for="inputPersen" class="col-sm-2 col-form-label">Persen</label>
+          <label for="inputPersen" class="col-sm-2 col-form-label">Hasil akhir (%)</label>
           <div class="col-sm-10">
             <input type="number" class="form-control" id="inputPersen" name="persen" value="<?= $r->persen ?>">
           </div>
@@ -51,9 +59,9 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-<!-- <script>
+<script>
   $(document).ready(function() {
-    $('#inputKeterangan').on('input', function() {
+    $('#inputGrade').on('input', function() {
       let keterangan = parseFloat($(this).val());
       let persen = '';
 
@@ -82,4 +90,4 @@
       $('#inputPersen').val(persen);
     });
   });
-</script> -->
+</script>

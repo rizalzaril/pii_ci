@@ -21,7 +21,7 @@
         </div>
       </div>
 
-      <!-- Input Keterangan -->
+      <!-- Input keterangan -->
       <div class="mb-3 row">
         <label for="inputKeterangan" class="col-sm-2 col-form-label">Keterangan</label>
         <div class="col-sm-10">
@@ -29,9 +29,17 @@
         </div>
       </div>
 
+      <!-- Input grade -->
+      <div class="mb-3 row">
+        <label for="inputGrade" class="col-sm-2 col-form-label">angka awal (%)</label>
+        <div class="col-sm-10">
+          <input type="number" class="form-control" id="inputGrade" name="nilai_awal">
+        </div>
+      </div>
+
       <!-- Persen -->
       <div class="input-group mb-3">
-        <label for="inputPersen" class="col-sm-2 col-form-label">Persen</label>
+        <label for="inputPersen" class="col-sm-2 col-form-label">Hasil akhir (%)</label>
         <input type="number" class="form-control" id="inputPersen" placeholder="" aria-label="" name="persen" aria-describedby="basic-addon2">
         <span class="input-group-text" id="basic-addon2">%</span>
       </div>
@@ -65,9 +73,59 @@
   </script>
 <?php endif; ?>
 
-<!-- <script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const inputKeterangan = document.getElementById('inputKeterangan');
+    const inputGrade = document.getElementById('inputGrade');
+
+    inputGrade.addEventListener('input', function() {
+      const nilaiKeteranganRaw = inputKeterangan.value.trim();
+      const nilaiGrade = parseFloat(inputGrade.value);
+
+      let nilaiKeterangan = 0;
+
+      // Ambil nilai dari inputKeterangan dan hilangkan simbol %
+      if (nilaiKeteranganRaw.endsWith('%')) {
+        nilaiKeterangan = parseFloat(nilaiKeteranganRaw.replace('%', ''));
+      } else {
+        nilaiKeterangan = parseFloat(nilaiKeteranganRaw);
+      }
+
+      const test = nilaiKeterangan;
+      if (nilaiKeterangan >= 10 && nilaiKeterangan <= 15) {
+        if (nilaiGrade > nilaiKeterangan) {
+          alert('⚠️ Nilai grade tidak boleh melebihi nilai keterangan (10% - 15%)');
+          inputGrade.classList.add('is-invalid');
+        } else {
+          inputGrade.classList.remove('is-invalid');
+        }
+      } else {
+        // Di luar rentang 10 - 15, validasi lain bisa dilakukan di sini jika perlu
+        inputGrade.classList.remove('is-invalid');
+      }
+
+
+
+
+      // Validasi jika inputGrade melebihi inputKeterangan
+      // if (!isNaN(nilaiGrade) && !isNaN(nilaiKeterangan) && nilaiGrade > nilaiKeterangan) {
+      //   alert('⚠️ Nilai angka awal tidak boleh melebihi nilai keterangan (' + nilaiKeterangan + '%)');
+      //   inputGrade.classList.add('is-invalid'); // Bootstrap class
+      // } else {
+      //   inputGrade.classList.remove('is-invalid');
+      // }
+    });
+  });
+</script>
+
+
+
+
+
+<script>
+  //script on input nilai awal to nilai akhir
   $(document).ready(function() {
-    $('#inputKeterangan').on('input', function() {
+    $('#inputGrade').on('input', function() {
       let keterangan = parseFloat($(this).val());
       let persen = '';
 
@@ -97,4 +155,4 @@
       $('#inputPersen').val(persen);
     });
   });
-</script> -->
+</script>

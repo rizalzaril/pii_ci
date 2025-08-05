@@ -67,6 +67,7 @@ class Dashboard extends CI_Controller
     $this->form_validation->set_rules('kode', 'Kode', 'required|trim');
     $this->form_validation->set_rules('keterangan', 'Keterangan', 'required|trim');
     $this->form_validation->set_rules('persen', 'Persen', 'required|trim');
+    $this->form_validation->set_rules('nilai_awal', 'Nilai awal', 'required|trim');
 
     if ($this->form_validation->run() == false) {
       return redirect('/dashboard/add_data');
@@ -74,11 +75,13 @@ class Dashboard extends CI_Controller
       $kode = $this->input->post('kode', true);
       $keterangan = $this->input->post('keterangan', true);
       $persen = $this->input->post('persen', true);
+      $nilai_awal = $this->input->post('nilai_awal', true);
 
 
       $data = [
         'kode' => htmlspecialchars($kode),
         'keter' => htmlspecialchars_decode($keterangan),
+        'nilai_awal' => htmlspecialchars_decode($nilai_awal),
         'persen' => htmlspecialchars($persen),
       ];
 
@@ -109,6 +112,7 @@ class Dashboard extends CI_Controller
 
     $this->form_validation->set_rules('keterangan', 'Keterangan', 'required|trim');
     $this->form_validation->set_rules('persen', 'Persen', 'required|numeric');
+    $this->form_validation->set_rules('nilai_awal', 'Persen', 'required|numeric');
 
     if ($this->form_validation->run() === FALSE) {
       // Jika validasi gagal, kembali ke form edit
@@ -119,9 +123,11 @@ class Dashboard extends CI_Controller
     // Ambil input dari form
     $keterangan = $this->input->post('keterangan', true);
     $persen = $this->input->post('persen', true);
+    $nilai_awal = $this->input->post('nilai_awal', true);
 
     $data = [
-      'keter' => ($keterangan),
+      'keter' => htmlspecialchars_decode($keterangan),
+      'nilai_awal' => htmlspecialchars($nilai_awal),
       'persen' => htmlspecialchars($persen),
     ];
 
