@@ -78,7 +78,7 @@ class Dashboard extends CI_Controller
 
       $data = [
         'kode' => htmlspecialchars($kode),
-        'keter' => ($keterangan),
+        'keter' => htmlspecialchars_decode($keterangan),
         'persen' => htmlspecialchars($persen),
       ];
 

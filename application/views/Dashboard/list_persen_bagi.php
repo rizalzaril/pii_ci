@@ -1,5 +1,12 @@
 <div class="container mt-5">
 
+  <?php if ($this->session->flashdata('success_update') || $this->session->flashdata('success_delete')): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <strong>Sukses!</strong> <?= $this->session->flashdata('success_save'); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <?php endif; ?>
+
   <a href="<?= base_url('/dashboard/add_data') ?>" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add data </a>
 
   <table class="table mt-3">
@@ -20,7 +27,7 @@
         <tr>
           <th scope="row"><?= $no++ ?></th>
           <td><?= $list->kode ?></td>
-          <td><?= $list->keter ?></td>
+          <td><?= htmlspecialchars_decode($list->keter)  ?></td>
           <td><?= $list->persen . '%' ?></td>
           <td>
             <a class="btn btn-primary btn-sm" href="<?= base_url('/dashboard/edit_data/' . $list->id) ?>"><i class="fas fa-edit"></i></a>
