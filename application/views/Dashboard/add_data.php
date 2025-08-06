@@ -73,7 +73,7 @@
   </script>
 <?php endif; ?>
 
-<script>
+<!-- <script>
   document.addEventListener('DOMContentLoaded', function() {
     const inputKeterangan = document.getElementById('inputKeterangan');
     const inputGrade = document.getElementById('inputGrade');
@@ -116,7 +116,7 @@
       // }
     });
   });
-</script>
+</script> -->
 
 
 

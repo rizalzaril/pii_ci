@@ -35,9 +35,9 @@ class Dashboard extends CI_Controller
 
     $data['list_data'] = $this->Pii_Model->find_all();
 
-    $this->load->view('Dashboard/header');
+    $this->load->view('header');
     $this->load->view('Dashboard/list_persen_bagi', $data);
-    $this->load->view('Dashboard/footer');
+    $this->load->view('footer');
   }
 
   public function add_data()
@@ -56,9 +56,9 @@ class Dashboard extends CI_Controller
 
     $data = array('kode' => $kode_baru);
 
-    $this->load->view('Dashboard/header');
+    $this->load->view('header');
     $this->load->view('Dashboard/add_data', $data);
-    $this->load->view('Dashboard/footer');
+    $this->load->view('footer');
   }
 
   public function store_data()
@@ -101,9 +101,9 @@ class Dashboard extends CI_Controller
 
     $data['row'] = $this->Pii_Model->get_by_id($id);
 
-    $this->load->view('Dashboard/header');
+    $this->load->view('header');
     $this->load->view('Dashboard/edit_data', $data);
-    $this->load->view('Dashboard/footer');
+    $this->load->view('footer');
   }
 
 
