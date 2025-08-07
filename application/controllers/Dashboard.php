@@ -1,9 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 class Dashboard extends CI_Controller
 {
-
   public function __construct()
   {
     parent::__construct();
@@ -150,5 +151,71 @@ class Dashboard extends CI_Controller
 
     $this->session->set_flashdata('success_delete', 'Data berhasil dihapus');
     redirect('/dashboard/list_data');
+  }
+
+  public function acpe()
+  {
+
+    $data['list_acpe'] = $this->Pii_Model->get_acpe();
+
+    $this->load->view('header');
+    $this->load->view('acpe_view', $data);
+    $this->load->view('footer');
+  }
+
+  public function import_acpe()
+  {
+    $config['upload_path']   = './uploads/';
+    $config['allowed_types'] = 'xlsx|xls|csv';
+    $config['max_size']      = 2048;
+    $config['file_name']     = 'excel_import_' . time();
+
+    $this->load->library('upload', $config);
+
+    if (!$this->upload->do_upload('excel_file')) {
+      $this->session->set_flashdata('error', $this->upload->display_errors());
+      redirect('/dashboard/acpe');
+    }
+
+    $uploadedFile = $this->upload->data();
+    $spreadsheet = IOFactory::load($uploadedFile['full_path']);
+    $sheet = $spreadsheet->getActiveSheet()->toArray();
+
+
+    for ($i = 1; $i < count($sheet); $i++) {
+      $row = $sheet[$i];
+
+      if (empty(array_filter($row))) {
+        continue;
+      }
+
+      if (count($row) >= 7) {
+
+        $data = [
+          'no_acpe'           => $row[0] ?? '',
+          'doi'               => $row[1] ?? '',
+          'nama'              => $row[2] ?? '',
+          'kta'               => $row[3] ?? '',
+          'new_po_no'         => $row[4] ?? '',
+          'bk_acpe'           => $row[5] ?? '',
+          'asosiasi_prof'     => $row[6] ?? '',
+        ];
+
+        // Validasi isi kolom wajib (misal: nama, kta tidak boleh kosong)
+        if (!empty($data['no_acpe']) && !empty($data['doi']) &&  !empty($data['nama'])) {
+          // Simpan ke database
+          $this->Pii_Model->insert_from_import($data);
+        } else {
+          // Lewati atau catat error
+          echo "Data tidak valid: Kolom wajib kosong<br>";
+        }
+      } else {
+        // Jumlah kolom tidak sesuai
+        echo "Data tidak valid: Jumlah kolom kurang dari 7<br>";
+      }
+    }
+
+    $this->session->set_flashdata('success', '✅ Data berhasil diimpor.');
+    redirect('/dashboard/acpe');
   }
 }

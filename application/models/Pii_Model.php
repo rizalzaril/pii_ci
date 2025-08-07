@@ -41,4 +41,18 @@ class Pii_Model extends CI_Model
   {
     return $this->db->delete('persen_bagi', ['id' => $id]);
   }
+
+  // ACPE \\
+  public function get_acpe()
+  {
+    $this->db->select('*');
+    $this->db->from('acpe');
+    $this->db->order_by('id', 'DESC');
+    return $this->db->get()->result();
+  }
+
+  public function insert_from_import($data)
+  {
+    return $this->db->insert('acpe', $data);
+  }
 }

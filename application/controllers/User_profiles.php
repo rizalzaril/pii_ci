@@ -164,7 +164,7 @@ class User_profiles extends CI_Controller
   public function import_excel($user_id)
   {
     $config['upload_path']   = './uploads/';
-    $config['allowed_types'] = 'xlsx|xls';
+    $config['allowed_types'] = 'xlsx|xls|csv';
     $config['max_size']      = 2048;
     $config['file_name']     = 'excel_import_' . time();
 
@@ -179,7 +179,7 @@ class User_profiles extends CI_Controller
     $spreadsheet = IOFactory::load($uploadedFile['full_path']);
     $sheet = $spreadsheet->getActiveSheet()->toArray();
 
-    // Ambil baris ke-2 (indeks 1)
+    // Ambil baris ke-2 (indeks 1)s
     $row = $sheet[1];
 
     $data = [

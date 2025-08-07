@@ -151,10 +151,6 @@
 
 
 
-
-
-
-
             <!-- Informasi kontak -->
             <div class="card shadow-sm mt-4">
               <div class="card-header">
