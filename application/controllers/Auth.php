@@ -39,39 +39,129 @@ class Auth extends CI_Controller
 
   public function register()
   {
-    $firstname = $this->input->post('firstname', true);
-    $lastname  = $this->input->post('lastname', true);
+    //CAPTCHA GENERATE
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $vals = array(
+        'img_path'      => './captcha/',
+        'img_url'       => base_url('captcha/'),
+        'font_path' => FCPATH . 'system/fonts/texb.ttf',
+        'img_width'     => 500,
+        'img_height'    => 50,
+        'expiration'    => 7200,
+        'word_length'   => 4,
+        'font_size'     => 200,
+        'img_id'        => 'Imageid',
+        'pool'          => '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+
+        // White background and border, black text and red grid
+        'colors'        => array(
+          'background' => array(255, 255, 255),
+          'border' => array(255, 255, 255),
+          'text' => array(0, 0, 0),
+          'grid' => array(255, 40, 40)
+        )
+      );
+
+      $captcha = create_captcha($vals);
+
+      if ($captcha === false) {
+        log_message('error', 'CAPTCHA gagal dibuat: ' . print_r($vals, true));
+        $data['captcha'] = ['image' => '<span style="color:red;">Gagal memuat captcha</span>'];
+      } else {
+        $this->session->set_userdata('captcha', $captcha['word']);
+        $data['captcha'] = $captcha;
+      }
+
+
+      return $this->load->view('Auth/Vregister', $data);
+    }
+
+
+    //POST REGISTER
+
+
+    //form to users
     $email     = $this->input->post('email', true);
     $password  = $this->input->post('password', true);
     $passconf  = $this->input->post('passconf', true);
+    $inputCaptcha = $this->input->post('captcha');
+
+    //form to user_profile
+    $firstname = $this->input->post('first_name', true);
+    $lastname = $this->input->post('last_name', true);
+    $birthplace = $this->input->post('birth_place', true);
+    $dob  = $this->input->post('dob', true);
+    $gender  = $this->input->post('gender', true);
+
+
+    //cek email yg sudah terdaftar
+    $cek_email = $this->db->get_where('users', ['email' => $email])->row();
+
+    if ($cek_email) {
+      $this->session->set_flashdata('error', ' email sudah terdaftar!');
+      return redirect('/Auth/register');
+    }
 
     // Validation rules
-    $this->form_validation->set_rules('firstname', 'Nama Depan', 'required|trim');
-    $this->form_validation->set_rules('lastname', 'Nama Belakang', 'required|trim');
-    $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[users.email]|trim');
+    $this->form_validation->set_rules('first_name', 'Nama Depan', 'required|trim');
+    $this->form_validation->set_rules('last_name', 'Nama Belakang', 'required|trim');
     $this->form_validation->set_rules('password', 'Password', 'required|min_length[8]|trim');
     $this->form_validation->set_rules('passconf', 'Konfirmasi Password', 'required|matches[password]|trim');
+
+
+    // Validasi CAPTCHA
+    if (strtoupper($inputCaptcha) != strtoupper($this->session->userdata('captcha'))) {
+      $this->session->set_flashdata('error', 'Kode Captcha salah!');
+      return redirect('Auth/register');
+    }
 
     // Jika validasi gagal
     if ($this->form_validation->run() == false) {
       return $this->load->view('Auth/Vregister');
     } else {
-      $data = [
+      $data_users = [
         'email'       => htmlspecialchars($email),
         'password'    => password_hash($password, PASSWORD_DEFAULT),
         'created'  => date('Y-m-d H:i:s')
       ];
 
-      $insert_id = $this->AuthModel->register($data);
+      $data_user_profiles = [
+        'firstname' => htmlspecialchars($firstname),
+        'lastname' => htmlspecialchars($lastname),
+        'birthplace' => htmlspecialchars($firstname),
+        'dob' => htmlspecialchars($dob),
+        'gender' => htmlspecialchars($gender),
+      ];
+
+      //debugging post
+      // echo '<pre>';
+      // var_dump($data_users, $data_user_profiles);
+      // echo '</pre>';
+      // exit;
+
+      // Simpan ke tabel users dulu
+      $insert_id = $this->AuthModel->register($data_users); // simpan dan ambil ID-nya
 
       if ($insert_id > 0) {
-        $kode_user = 'USR' . str_pad($insert_id, 4, '0', STR_PAD_LEFT) . '-' . date('Ymd');
-        $this->db->where('id', $insert_id);
-        $this->db->update('users', ['kode_user' => $kode_user]);
+        // Simpan ke user_profiles dengan field user_id
+        $data_user_profiles['user_id'] = $insert_id;
+        $this->AuthModel->register_profiles($data_user_profiles);
+
+        // // Optional: update kode_user
+        // $kode_user = 'USR' . str_pad($insert_id, 4, '0', STR_PAD_LEFT) . '-' . date('Ymd');
+        // $this->db->where('id', $insert_id);
+        // $this->db->update('users', ['kode_user' => $kode_user]);
+
+        $this->session->set_flashdata('success', 'Akun berhasil didaftarkan. Silakan login.');
+        redirect('Auth/register');
+      } else {
+        $this->session->set_flashdata('error', 'Terjadi kesalahan saat menyimpan data pengguna.');
+        redirect('Auth/register');
       }
 
+
       $this->session->set_flashdata('success', 'Akun berhasil didaftarkan. Silakan login.');
-      redirect('Auth/Vlogin');
+      redirect('Auth/register');
     }
   }
 
@@ -213,7 +303,7 @@ class Auth extends CI_Controller
 
   public function logout()
   {
-    $this->session->unset_userdata(['id', 'email', 'name', 'role', 'created_at', 'last_login']);
+    $this->session->unset_userdata(['id', 'email']);
     $this->session->sess_destroy();
     redirect('auth/login');
   }

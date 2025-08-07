@@ -35,7 +35,7 @@ class User_profiles_model extends CI_Model
       ->result();
   }
 
-  public function update_info_pribadi($id, $data)
+  public function update_profiles($id, $data)
   {
     return $this->db->update('user_profiles', $data, ['user_id' => $id]);
   }
@@ -44,5 +44,10 @@ class User_profiles_model extends CI_Model
   public function count_all()
   {
     return $this->db->count_all('users');
+  }
+
+  public function update_profile_from_excel($user_id, $data)
+  {
+    return $this->db->update('user_profiles', $data, ['user_id' => $user_id]);
   }
 }

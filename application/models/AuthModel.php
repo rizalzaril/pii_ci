@@ -8,16 +8,20 @@ class AuthModel extends CI_Model
 {
 
   private $table = 'users';
+  private $table_profiles = 'user_profiles';
 
 
   public function register($data)
   {
-    $this->db->insert($this->table, $data);
-    // return $this->db->insert_id();
-
-    // $this->db->insert('users', $data);
-    // return $this->db->insert_id(); // return id terakhir
+    $this->db->insert('users', $data);
+    return $this->db->insert_id(); // Ambil id terakhir
   }
+
+  public function register_profiles($data)
+  {
+    return $this->db->insert('user_profiles', $data);
+  }
+
 
   public function getProfileByUserId($user_id)
   {
