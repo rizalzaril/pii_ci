@@ -165,75 +165,110 @@ class Dashboard extends CI_Controller
 
   public function import_acpe()
   {
-    $config['upload_path']   = './uploads/';
-    $config['allowed_types'] = 'xlsx|xls|csv';
-    $config['max_size']      = 2048;
-    $config['file_name']     = 'excel_import_' . time();
+    // Konfigurasi upload
+    $config = [
+      'upload_path'   => './uploads/',
+      'allowed_types' => 'xlsx|xls|csv',
+      'max_size'      => 2048,
+      'file_name'     => 'excel_import_' . time()
+    ];
 
     $this->load->library('upload', $config);
 
+    // Upload file
     if (!$this->upload->do_upload('excel_file')) {
       $this->session->set_flashdata('error', $this->upload->display_errors());
       redirect('/dashboard/acpe');
+      return;
     }
 
     $uploadedFile = $this->upload->data();
-    $spreadsheet  = IOFactory::load($uploadedFile['full_path']);
-    $sheet        = $spreadsheet->getActiveSheet()->toArray();
 
-    // Kolom yang diharapkan
-    $expectedColumns = [
-      'no_acpe',
-      'doi',
-      'nama',
-      'kta',
-      'new_po_no',
-      'bk_acpe',
-      'asosiasi_prof'
-    ];
+    try {
+      // Load spreadsheet
+      $spreadsheet = IOFactory::load($uploadedFile['full_path']);
+      $sheetData   = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
-    // Ambil header dari file Excel
-    $fileHeader = array_map('trim', $sheet[0]);
+      // Loop mulai dari baris kedua (skip header)
+      foreach ($sheetData as $rowIndex => $row) {
+        if ($rowIndex === 1) continue; // skip header
 
-    // Pastikan semua kolom yang diharapkan ada di file Excel
-    foreach ($expectedColumns as $col) {
-      if (!in_array($col, $fileHeader)) {
-        $this->session->set_flashdata('error', "❌ Kolom '{$col}' tidak ditemukan di file Excel. Kolom pada file csv/xlsx harus sesuai dengan kolom table di bawah ini");
-        unlink($uploadedFile['full_path']);
-        redirect('/dashboard/acpe');
-        return;
+        // Skip baris kosong
+        if (empty(array_filter($row))) continue;
+
+        $data = [
+          'no_acpe'       => trim($row['A']),
+          'doi'           => trim($row['B']),
+          'nama'          => trim($row['C']),
+          'kta'           => trim($row['D']),
+          'new_po_no'     => trim($row['E']),
+          'bk_acpe'       => trim($row['F']),
+          'asosiasi_prof' => trim($row['G']),
+        ];
+
+        // Validasi kolom wajib
+        if (!empty($data['no_acpe']) && !empty($data['doi']) && !empty($data['nama'])) {
+          $this->Pii_Model->insert_from_import($data);
+        }
       }
+
+      $this->session->set_flashdata('success', '✅ Data berhasil diimpor.');
+    } catch (\Exception $e) {
+      $this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
     }
 
-    // Buat mapping kolom -> index
-    $columnIndex = array_flip($fileHeader);
-
-    // Loop mulai dari baris kedua
-    for ($i = 1; $i < count($sheet); $i++) {
-      $row = $sheet[$i];
-
-      if (empty(array_filter($row))) {
-        continue;
-      }
-
-      $data = [
-        'no_acpe'       => $row[$columnIndex['no_acpe']] ?? '',
-        'doi'           => $row[$columnIndex['doi']] ?? '',
-        'nama'          => $row[$columnIndex['nama']] ?? '',
-        'kta'           => $row[$columnIndex['kta']] ?? '',
-        'new_po_no'     => $row[$columnIndex['new_po_no']] ?? '',
-        'bk_acpe'       => $row[$columnIndex['bk_acpe']] ?? '',
-        'asosiasi_prof' => $row[$columnIndex['asosiasi_prof']] ?? '',
-      ];
-
-      // Validasi kolom wajib
-      if (!empty($data['no_acpe']) && !empty($data['doi']) && !empty($data['nama'])) {
-        $this->Pii_Model->insert_from_import($data);
-      }
+    // Hapus file upload untuk keamanan
+    if (file_exists($uploadedFile['full_path'])) {
+      unlink($uploadedFile['full_path']);
     }
 
-    $this->session->set_flashdata('success', '✅ Data berhasil diimpor.');
-    unlink($uploadedFile['full_path']); // hapus file upload
     redirect('/dashboard/acpe');
+  }
+
+
+
+  // ITS
+
+  public function its()
+  {
+    $this->load->view('header');
+    $this->load->view('its_view');
+    $this->load->view('footer');
+  }
+
+
+  public function get_data_its()
+  {
+    $draw   = intval($this->input->get("draw"));
+    $start  = intval($this->input->get("start"));
+    $length = intval($this->input->get("length"));
+    $search = $this->input->get("search")['value'];
+
+    $users = $this->Pii_Model->get_its($start, $length, $search);
+    $total = $this->Pii_Model->count_all();
+    $filtered = $this->Users_model->count_filtered($search);
+
+    $data = [];
+    $no = $start + 1;
+    foreach ($users as $user) {
+      $data[] = [
+        $no++,
+        $user->username,
+        $user->email,
+        $user->activated == 1
+          ? '<span class="badge bg-success">Aktif</span>'
+          : '<span class="badge bg-secondary">Nonaktif</span>',
+        '<a href="' . base_url('users/get_user_detail/' . $user->id) . '" class="btn btn-sm btn-dark"><i class="fa fa-eye"></i></a>
+        <a href="' . base_url('users/edit/' . $user->id) . '" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>
+       <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="' . $user->id . '"><i class="fa fa-trash"></i></a>'
+      ];
+    }
+
+    echo json_encode([
+      "draw" => $draw,
+      "recordsTotal" => $total,
+      "recordsFiltered" => $filtered,
+      "data" => $data
+    ]);
   }
 }

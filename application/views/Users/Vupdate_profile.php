@@ -10,7 +10,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       <?php endif; ?>
-
+        
       <?= form_open('/dashboard/store_data') ?>
 
       <!-- Input Kode otomatis -->

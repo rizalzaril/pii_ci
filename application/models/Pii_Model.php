@@ -53,6 +53,48 @@ class Pii_Model extends CI_Model
 
   public function insert_from_import($data)
   {
-    return $this->db->insert('acpe', $data);
+    return $this->db->insert('users', $data);
+  }
+
+
+  /// ITS \\\
+
+  public function get_its($start, $length, $search = null)
+  {
+    $this->db->select('id, username, email, activated');
+    $this->db->from('users');
+
+    // 🔍 Proses pencarian jika ada input
+    if (!empty($search)) {
+      $this->db->group_start();
+      $this->db->like('username', $search);
+      $this->db->or_like('email', $search);
+      $this->db->group_end();
+    }
+
+    $this->db->order_by('id', 'DESC');
+    $this->db->limit($length, $start);
+
+    return $this->db->get()->result();
+  }
+
+  public function count_filtered($search = null)
+  {
+    $this->db->from('users');
+
+    if (!empty($search)) {
+      $this->db->group_start();
+      $this->db->like('username', $search);
+      $this->db->or_like('email', $search);
+      $this->db->group_end();
+    }
+
+    return $this->db->count_all_results();
+  }
+
+
+  public function count_all()
+  {
+    return $this->db->count_all('users');
   }
 }
