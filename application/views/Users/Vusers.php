@@ -42,7 +42,7 @@
   </table> -->
 
   <h3>Daftar User</h3>
-  <table id="table_users" class="table table-bordered">
+  <table id="table_users" class="table table-sm table-striped">
     <thead>
       <tr>
         <th>No</th>

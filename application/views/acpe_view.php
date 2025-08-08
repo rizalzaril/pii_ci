@@ -7,11 +7,19 @@
     </div>
   <?php endif; ?>
 
+  <!-- error validation -->
+  <?php if ($this->session->flashdata('error') || $this->session->flashdata('error')): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Gagal!</strong> <?= $this->session->flashdata('error'); ?>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <?php endif; ?>
+
   <a href="<?= base_url('/dashboard/add_data') ?>" class="btn btn-primary mb-3"><i class="fa-solid fa-plus"></i> Add data </a>
 
   <!-- button import csv/xlxs -->
   <button type="button" class="btn btn-dark mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Import CSV/XLSX
+    <i class="fas fa-file-excel"></i> Import
   </button>
 
 
@@ -47,7 +55,7 @@
 
   <!-- Table acpe -->
 
-  <table id="table_acpe" class="table mt-3">
+  <table id="table_acpe" class="table table-sm table-striped mt-3">
     <thead>
       <tr>
         <th scope="col">#</th>

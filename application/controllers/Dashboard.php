@@ -178,10 +178,37 @@ class Dashboard extends CI_Controller
     }
 
     $uploadedFile = $this->upload->data();
-    $spreadsheet = IOFactory::load($uploadedFile['full_path']);
-    $sheet = $spreadsheet->getActiveSheet()->toArray();
+    $spreadsheet  = IOFactory::load($uploadedFile['full_path']);
+    $sheet        = $spreadsheet->getActiveSheet()->toArray();
 
+    // Kolom yang diharapkan
+    $expectedColumns = [
+      'no_acpe',
+      'doi',
+      'nama',
+      'kta',
+      'new_po_no',
+      'bk_acpe',
+      'asosiasi_prof'
+    ];
 
+    // Ambil header dari file Excel
+    $fileHeader = array_map('trim', $sheet[0]);
+
+    // Pastikan semua kolom yang diharapkan ada di file Excel
+    foreach ($expectedColumns as $col) {
+      if (!in_array($col, $fileHeader)) {
+        $this->session->set_flashdata('error', "❌ Kolom '{$col}' tidak ditemukan di file Excel. Kolom pada file csv/xlsx harus sesuai dengan kolom table di bawah ini");
+        unlink($uploadedFile['full_path']);
+        redirect('/dashboard/acpe');
+        return;
+      }
+    }
+
+    // Buat mapping kolom -> index
+    $columnIndex = array_flip($fileHeader);
+
+    // Loop mulai dari baris kedua
     for ($i = 1; $i < count($sheet); $i++) {
       $row = $sheet[$i];
 
@@ -189,33 +216,24 @@ class Dashboard extends CI_Controller
         continue;
       }
 
-      if (count($row) >= 7) {
+      $data = [
+        'no_acpe'       => $row[$columnIndex['no_acpe']] ?? '',
+        'doi'           => $row[$columnIndex['doi']] ?? '',
+        'nama'          => $row[$columnIndex['nama']] ?? '',
+        'kta'           => $row[$columnIndex['kta']] ?? '',
+        'new_po_no'     => $row[$columnIndex['new_po_no']] ?? '',
+        'bk_acpe'       => $row[$columnIndex['bk_acpe']] ?? '',
+        'asosiasi_prof' => $row[$columnIndex['asosiasi_prof']] ?? '',
+      ];
 
-        $data = [
-          'no_acpe'           => $row[0] ?? '',
-          'doi'               => $row[1] ?? '',
-          'nama'              => $row[2] ?? '',
-          'kta'               => $row[3] ?? '',
-          'new_po_no'         => $row[4] ?? '',
-          'bk_acpe'           => $row[5] ?? '',
-          'asosiasi_prof'     => $row[6] ?? '',
-        ];
-
-        // Validasi isi kolom wajib (misal: nama, kta tidak boleh kosong)
-        if (!empty($data['no_acpe']) && !empty($data['doi']) &&  !empty($data['nama'])) {
-          // Simpan ke database
-          $this->Pii_Model->insert_from_import($data);
-        } else {
-          // Lewati atau catat error
-          echo "Data tidak valid: Kolom wajib kosong<br>";
-        }
-      } else {
-        // Jumlah kolom tidak sesuai
-        echo "Data tidak valid: Jumlah kolom kurang dari 7<br>";
+      // Validasi kolom wajib
+      if (!empty($data['no_acpe']) && !empty($data['doi']) && !empty($data['nama'])) {
+        $this->Pii_Model->insert_from_import($data);
       }
     }
 
     $this->session->set_flashdata('success', '✅ Data berhasil diimpor.');
+    unlink($uploadedFile['full_path']); // hapus file upload
     redirect('/dashboard/acpe');
   }
 }
