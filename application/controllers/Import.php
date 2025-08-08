@@ -55,6 +55,8 @@ class Import extends CI_Controller
 
       $password = $this->input->post('password');
 
+      $existingEmails = $this->db->select('email')->get('users')->result_array();
+      $existingEmails = array_column($existingEmails, 'email'); // jadi array 1 dimensi
 
       $username = '';
       $password_hash = password_hash($password, PASSWORD_DEFAULT);
@@ -83,11 +85,11 @@ class Import extends CI_Controller
         $email_exist = $this->db->get_where('users', ['email' => $email])->row();
 
         // Validasi jika email sudah ada maka akana ada pesan error
-        if ($email_exist) {
-          // Kalau sudah ada, beri pesan error dan hentikan proses
+        // Cek apakah email sudah ada di DB
+        if (in_array($email, $existingEmails)) {
           $this->session->set_flashdata('error', "❌ Email '$email' sudah terdaftar!");
           redirect('/import');
-          return;
+          return; // stop proses import
         }
 
         $username = '';
