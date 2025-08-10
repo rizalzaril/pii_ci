@@ -69,24 +69,32 @@ class Pii_Model extends CI_Model
 
 	/// ITS \\\
 
-	public function get_its($start, $length, $search = null)
+	public function get_users($start, $length, $search = null, $order_col = 'id', $order_dir = 'DESC')
 	{
-		$this->db->select('id, username, email, activated');
-		$this->db->from('users');
-		$this->db->order_by('id', 'DESC');
+		$this->db->select('*')->from('users');
 
-		// 🔍 Proses pencarian jika ada input
 		if (!empty($search)) {
-			$this->db->group_start();
-			$this->db->like('username', $search);
-			$this->db->or_like('email', $search);
-			$this->db->group_end();
+			$this->db->group_start()
+				->like('username', $search)
+				->or_like('email', $search)
+				->group_end();
 		}
 
+		// mapping nama kolom yang valid
+		$allowed_cols = ['id', 'username', 'email'];
+		if (!in_array($order_col, $allowed_cols)) {
+			$order_col = 'id';
+		}
+
+		$order_dir = strtoupper($order_dir) === 'ASC' ? 'ASC' : 'DESC';
+
+		$this->db->order_by($order_col, $order_dir);
 		$this->db->limit($length, $start);
 
 		return $this->db->get()->result();
 	}
+
+
 
 	public function count_filtered($search = null)
 	{

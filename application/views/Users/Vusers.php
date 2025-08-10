@@ -59,7 +59,22 @@
 	</div>
 
 
-	<h3>Daftar User</h3>
+	<h3>List User</h3>
+
+	<div class="mb-3">
+		<label>Sort by key:</label>
+		<select id="sort_by" class="form-select" style="width:auto; display:inline-block;">
+			<option value="id|ASC">PRIMARY (ASC)</option>
+			<option value="id|DESC" selected>PRIMARY (DESC)</option>
+			<option value="username|ASC">username (ASC)</option>
+			<option value="username|DESC">username (DESC)</option>
+			<option value="email|ASC">email (ASC)</option>
+			<option value="email|DESC">email (DESC)</option>
+			<option value="">Tidak ada</option>
+		</select>
+	</div>
+
+
 	<table id="table_users" class="table table-sm table-striped">
 		<thead>
 			<tr>
@@ -132,12 +147,25 @@
 
 <!-- Inisialisasi DataTable table users -->
 <script>
-	new DataTable('#table_users', {
+	let table = new DataTable('#table_users', {
 		processing: true,
 		serverSide: true,
 		ajax: {
 			url: "<?= base_url('users/get_users') ?>",
-			type: "GET"
+			type: "GET",
+			data: function(d) {
+				let sort_val = $('#sort_by').val();
+				if (sort_val) {
+					let parts = sort_val.split('|');
+					d.order_by = parts[0];
+					d.order_dir = parts[1];
+				}
+			}
 		}
+	});
+
+	// reload table saat dropdown berubah
+	$('#sort_by').on('change', function() {
+		table.ajax.reload();
 	});
 </script>
