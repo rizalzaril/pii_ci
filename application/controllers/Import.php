@@ -103,6 +103,7 @@ class Import extends CI_Controller
 
 				// Ambil ID user yang baru dibuat
 				$user_id = $this->db->insert_id();
+				$mobilephone = trim($row['K']);
 
 				// ===================== INSERT USER PROFILE =====================
 				$data_profiles = [
@@ -114,10 +115,24 @@ class Import extends CI_Controller
 					'idcard'           => trim($row['G']),
 					'birthplace'       => trim($row['I']),
 					'dob'              => $dob_db,
-					'mobilephone'      => trim($row['K']),
+					'mobilephone'      => $mobilephone,
 					'kolektif_name_id' => htmlspecialchars($kodkel),
 				];
 				$this->Pii_Model->insert_data_profiles($data_profiles);
+
+				// ===================== INSERT USER ADDRESS =====================
+				$data_address = [
+					'user_id'          		=> $user_id,
+					'addresstype'        	=> 'Rumah',
+					'address'         		=> trim($row['L']),
+					'city'           			=> trim($row['M']),
+					'province'           	=> trim($row['N']),
+					'phone'           		=> $mobilephone,
+					'zipcode'       			=> trim($row['O']),
+					'email'              	=> $email,
+					'createddate'      		=> date('Y:m;d'),
+				];
+				$this->Pii_Model->insert_user_address($data_address);
 
 				// Tambahkan email ke list supaya duplikat di file ikut dicegah
 				$existingEmails[] = $email;

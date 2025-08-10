@@ -61,6 +61,11 @@ class Pii_Model extends CI_Model
 		return $this->db->insert('user_profiles', $data_profiles);
 	}
 
+	public function insert_user_address($data_address)
+	{
+		return $this->db->insert('user_address', $data_address);
+	}
+
 
 	/// ITS \\\
 
