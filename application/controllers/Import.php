@@ -49,9 +49,15 @@ class Import extends CI_Controller
 			$spreadsheet = IOFactory::load($uploadedFile['full_path']);
 			$sheetData   = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
-			$password       = $this->input->post('password');
-			$password_hash  = password_hash($password, PASSWORD_DEFAULT);
-			$kodkel         = $this->input->post('kodkel', true);
+			$kodkel           = $this->input->post('kodkel', true);
+			$passwordDefault  = $this->input->post('password', true); // Ambil password dari form
+
+			// Validasi password default
+			// if (empty($passwordDefault)) {
+			// 	$this->session->set_flashdata('error', 'Password default wajib diisi!');
+			// 	redirect('/users');
+			// 	return;
+			// }
 
 			// Ambil semua email existing dari DB
 			$existingEmails = $this->db->select('email')->get('users')->result_array();
@@ -97,7 +103,7 @@ class Import extends CI_Controller
 				$data_users = [
 					'username' => '',
 					'email'    => $email,
-					'password' => $password_hash,
+					'password' => password_hash($passwordDefault, PASSWORD_DEFAULT), // Gunakan password default
 				];
 				$this->Pii_Model->insert_from_import($data_users);
 
@@ -130,7 +136,7 @@ class Import extends CI_Controller
 					'phone'           		=> $mobilephone,
 					'zipcode'       			=> trim($row['O']),
 					'email'              	=> $email,
-					'createddate'      		=> date('Y:m;d'),
+					'createddate'      		=> date('Y-m-d'), // perbaikan format date
 				];
 				$this->Pii_Model->insert_user_address($data_address);
 
@@ -153,6 +159,6 @@ class Import extends CI_Controller
 			$this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
 		}
 
-		redirect('/import');
+		redirect('/users');
 	}
 }

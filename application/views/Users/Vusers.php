@@ -1,8 +1,8 @@
 <div class="container mt-5">
 
-	<?php if ($this->session->flashdata('success_update') || $this->session->flashdata('success_delete')): ?>
+	<?php if ($this->session->flashdata('success_update') || $this->session->flashdata('success_delete') || $this->session->flashdata('success_import')) : ?>
 		<div class="alert alert-success alert-dismissible fade show" role="alert">
-			<strong>Sukses!</strong> <?= $this->session->flashdata('success_save'); ?>
+			<strong>Sukses!</strong> <?= $this->session->flashdata('success_import'); ?>
 			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 		</div>
 	<?php endif; ?>
@@ -26,12 +26,12 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<?= form_open_multipart('import/import_proccess/') ?>
+					<?= form_open_multipart('import/import_proccess/', ['id' => 'formImport']) ?>
 
 					<!-- Form file upload XLSX -->
 					<div class="mb-3">
 						<label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label>
-						<input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv," required>
+						<input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required>
 					</div>
 
 					<div class="mb-3">
@@ -45,10 +45,27 @@
 
 					<div class="mb-3">
 						<label for="passwordImport" class="form-label fw-bold">Password*</label>
-						<input type="password" class="form-control shadow-sm" placeholder="Masukkan Password Default untuk Aplikan" required>
+						<input type="password" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required>
 					</div>
+
 					<button type="submit" class="btn btn-success">Import</button>
+
 					<?= form_close() ?>
+
+					<!-- Overlay Loading -->
+					<div id="loadingOverlay"
+						style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white; padding-top:20%;">
+						<div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;"></div>
+						<p class="mt-3 fs-5">Sedang mengimport data, mohon tunggu...</p>
+					</div>
+
+					<script>
+						document.getElementById('formImport').addEventListener('submit', function() {
+							document.getElementById('loadingOverlay').style.display = 'block';
+						});
+					</script>
+
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -110,6 +127,14 @@
 			icon: 'success',
 			title: 'Berhasil!',
 			text: '<?= $this->session->flashdata("success_update") ?>',
+			showConfirmButton: false,
+			timer: 2000
+		});
+
+		Swal.fire({
+			icon: 'success',
+			title: 'Berhasil!',
+			text: '<?= $this->session->flashdata("success_import") ?>',
 			showConfirmButton: false,
 			timer: 2000
 		});
