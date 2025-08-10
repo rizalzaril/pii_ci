@@ -36,7 +36,6 @@ class Import extends CI_Controller
 
 		$this->load->library('upload', $config);
 
-		// Upload file
 		if (!$this->upload->do_upload('excel_file')) {
 			$this->session->set_flashdata('error', $this->upload->display_errors());
 			redirect('/dashboard/acpe');
@@ -50,114 +49,93 @@ class Import extends CI_Controller
 			$spreadsheet = IOFactory::load($uploadedFile['full_path']);
 			$sheetData   = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
+			$password       = $this->input->post('password');
+			$password_hash  = password_hash($password, PASSWORD_DEFAULT);
+			$kodkel         = $this->input->post('kodkel', true);
 
-			//POST
-
-			$password = $this->input->post('password');
-
+			// Ambil semua email existing dari DB
 			$existingEmails = $this->db->select('email')->get('users')->result_array();
-			$existingEmails = array_column($existingEmails, 'email'); // jadi array 1 dimensi
+			$existingEmails = array_column($existingEmails, 'email');
 
-			$username = '';
-			$password_hash = password_hash($password, PASSWORD_DEFAULT);
+			$errors = [];
 
-			// Loop mulai dari baris kedua (skip header)
+			// Loop data excel (mulai dari baris ke-2)
 			foreach ($sheetData as $rowIndex => $row) {
-				if ($rowIndex === 1) continue; // skip header
+				if ($rowIndex === 1) continue; // Skip header
+				if (empty(array_filter($row))) continue; // Skip baris kosong
 
-				// Skip baris kosong
-				if (empty(array_filter($row))) continue;
+				$email = trim($row['D']);
 
-				// Ambil value gender dari kolom E
-				$gender_excel = strtolower(trim($row['E'])); // lowercase biar aman
+				// Cek duplikat email (di DB atau di file)
+				if (in_array($email, $existingEmails)) {
+					$errors[] = "Baris $rowIndex: Email '$email' sudah terdaftar.";
+					continue;
+				}
 
-				// Mapping ke value database
+				// Mapping gender
+				$gender_excel = strtolower(trim($row['E']));
 				if ($gender_excel === 'laki-laki') {
 					$gender_db = 'Male';
 				} elseif ($gender_excel === 'perempuan') {
 					$gender_db = 'Female';
 				} else {
-					$gender_db = null; // atau default lain kalau datanya kosong/tidak valid
+					$gender_db = null;
 				}
-				$email = trim($row['D']);
-				$kodkel = $this->input->post('kodkel', true);
-				$firstname = trim($row['B']);
-				$lastname = trim($row['C']);
-				$idcard = trim($row['G']);
-				$birthplace = trim($row['I']);
 
+				// Format DOB
 				$dob_cell = trim($row['J']);
 				$dob_db = null;
-
 				if (!empty($dob_cell)) {
 					if (is_numeric($dob_cell)) {
-						// Format tanggal dari serial Excel
-						$dob_db = ExcelDate::excelToDateTimeObject($dob_cell)->format('Y-m-d');
+						$dob_db = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dob_cell)->format('Y-m-d');
 					} else {
-						// Format manual dari string
 						$dob_db = date('Y-m-d', strtotime($dob_cell));
 					}
 				}
 
-				$mobilephone = trim($row['K']);
-
-				// Cek apakah email sudah ada di database
-				$email_exist = $this->db->get_where('users', ['email' => $email])->row();
-
-				// Validasi jika email sudah ada maka akana ada pesan error
-				// Cek apakah email sudah ada di DB
-				if (in_array($email, $existingEmails)) {
-					$this->session->set_flashdata('error', "❌ Email '$email' sudah terdaftar!");
-					redirect('/import');
-					return; // stop proses import
-				}
-
-				$username = '';
-				///////////////////////// GET DATA USERS \\\\\\\\\\\\\\\\\\\\\\
+				// ===================== INSERT USERS =====================
 				$data_users = [
-					'username' => $username,
-					'email' => $email,
-					'password' => $row = $password_hash,
+					'username' => '',
+					'email'    => $email,
+					'password' => $password_hash,
 				];
-
-				///////////////////////// GET DATA USER PROFILE \\\\\\\\\\\\\\\\\\\\\\
-
-
-				$data_profiles = [
-					'user_id'               => '1',
-					'firstname'             => $firstname,
-					'lastname'              => $lastname,
-					'gender'                => $gender_db,
-					'idtype'                => 'Citizen',
-					'idcard'                => $idcard,
-					'birthplace'            => $birthplace,
-					'dob'                   => $dob_db,
-					'mobilephone'           => $mobilephone,
-					'kolektif_name_id'      => htmlspecialchars($kodkel),
-				];
-
-				///////////////////////// GET DATA USER ADDRESS \\\\\\\\\\\\\\\\\\\\\\
-
-				// $data_user_address = [
-				//   'test' => trim($row['C'])
-				// ];
-				// var_dump($data_users, $data_profiles);
-				// exit;
-				// Validasi kolom wajib
-				// if (!empty($data['no_acpe']) && !empty($data['doi']) && !empty($data['nama'])) {
-				// }
 				$this->Pii_Model->insert_from_import($data_users);
+
+				// Ambil ID user yang baru dibuat
+				$user_id = $this->db->insert_id();
+
+				// ===================== INSERT USER PROFILE =====================
+				$data_profiles = [
+					'user_id'          => $user_id,
+					'firstname'        => trim($row['B']),
+					'lastname'         => trim($row['C']),
+					'gender'           => $gender_db,
+					'idtype'           => 'Citizen',
+					'idcard'           => trim($row['G']),
+					'birthplace'       => trim($row['I']),
+					'dob'              => $dob_db,
+					'mobilephone'      => trim($row['K']),
+					'kolektif_name_id' => htmlspecialchars($kodkel),
+				];
 				$this->Pii_Model->insert_data_profiles($data_profiles);
+
+				// Tambahkan email ke list supaya duplikat di file ikut dicegah
+				$existingEmails[] = $email;
 			}
 
-			$this->session->set_flashdata('success_import', '✅ Data berhasil diimpor.');
+			// Hapus file upload
+			if (file_exists($uploadedFile['full_path'])) {
+				unlink($uploadedFile['full_path']);
+			}
+
+			// Feedback hasil import
+			if (!empty($errors)) {
+				$this->session->set_flashdata('error', implode('<br>', $errors));
+			} else {
+				$this->session->set_flashdata('success_import', '✅ Semua data berhasil diimpor.');
+			}
 		} catch (\Exception $e) {
 			$this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
-		}
-
-		// Hapus file upload untuk keamanan
-		if (file_exists($uploadedFile['full_path'])) {
-			unlink($uploadedFile['full_path']);
 		}
 
 		redirect('/import');
