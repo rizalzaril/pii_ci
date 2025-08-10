@@ -8,136 +8,158 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class Import extends CI_Controller
 {
 
-  public function __construct()
-  {
-    parent::__construct();
+	public function __construct()
+	{
+		parent::__construct();
 
-    $this->load->model('Pii_Model');
-    $this->load->library(['session', 'form_validation']);
-  }
-
-
-  public function index()
-  {
-    $this->load->view('header');
-    $this->load->view('import_view');
-    $this->load->view('footer');
-  }
-
-  public function import_proccess()
-  {
-    // Konfigurasi upload
-    $config = [
-      'upload_path'   => './uploads/excel_import/',
-      'allowed_types' => 'xlsx|xls|csv',
-      'max_size'      => 2048,
-      'file_name'     => 'excel_import_' . time()
-    ];
-
-    $this->load->library('upload', $config);
-
-    // Upload file
-    if (!$this->upload->do_upload('excel_file')) {
-      $this->session->set_flashdata('error', $this->upload->display_errors());
-      redirect('/dashboard/acpe');
-      return;
-    }
-
-    $uploadedFile = $this->upload->data();
-
-    try {
-      // Load spreadsheet
-      $spreadsheet = IOFactory::load($uploadedFile['full_path']);
-      $sheetData   = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+		$this->load->model('Pii_Model');
+		$this->load->library(['session', 'form_validation']);
+	}
 
 
-      //POST
+	public function index()
+	{
+		$this->load->view('header');
+		$this->load->view('import_view');
+		$this->load->view('footer');
+	}
 
-      $password = $this->input->post('password');
+	public function import_proccess()
+	{
+		// Konfigurasi upload
+		$config = [
+			'upload_path'   => './uploads/excel_import/',
+			'allowed_types' => 'xlsx|xls|csv',
+			'max_size'      => 2048,
+			'file_name'     => 'excel_import_' . time()
+		];
 
-      $existingEmails = $this->db->select('email')->get('users')->result_array();
-      $existingEmails = array_column($existingEmails, 'email'); // jadi array 1 dimensi
+		$this->load->library('upload', $config);
 
-      $username = '';
-      $password_hash = password_hash($password, PASSWORD_DEFAULT);
+		// Upload file
+		if (!$this->upload->do_upload('excel_file')) {
+			$this->session->set_flashdata('error', $this->upload->display_errors());
+			redirect('/dashboard/acpe');
+			return;
+		}
 
-      // Loop mulai dari baris kedua (skip header)
-      foreach ($sheetData as $rowIndex => $row) {
-        if ($rowIndex === 1) continue; // skip header
+		$uploadedFile = $this->upload->data();
 
-        // Skip baris kosong
-        if (empty(array_filter($row))) continue;
+		try {
+			// Load spreadsheet
+			$spreadsheet = IOFactory::load($uploadedFile['full_path']);
+			$sheetData   = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
-        // $data = [
-        //   'no_acpe'       => trim($row['A']),
-        //   'doi'           => trim($row['B']),
-        //   'nama'          => trim($row['C']),
-        //   'kta'           => trim($row['D']),
-        //   'new_po_no'     => trim($row['E']),
-        //   'bk_acpe'       => trim($row['F']),
-        //   'asosiasi_prof' => trim($row['G']),
-        // ];
 
-        ///////////////////////// GET DATA USERS \\\\\\\\\\\\\\\\\\\\\\
-        // Cek apakah email sudah ada di database
-        $email = trim($row['D']);
+			//POST
 
-        $email_exist = $this->db->get_where('users', ['email' => $email])->row();
+			$password = $this->input->post('password');
 
-        // Validasi jika email sudah ada maka akana ada pesan error
-        // Cek apakah email sudah ada di DB
-        if (in_array($email, $existingEmails)) {
-          $this->session->set_flashdata('error', "❌ Email '$email' sudah terdaftar!");
-          redirect('/import');
-          return; // stop proses import
-        }
+			$existingEmails = $this->db->select('email')->get('users')->result_array();
+			$existingEmails = array_column($existingEmails, 'email'); // jadi array 1 dimensi
 
-        $username = '';
-        $data_users = [
-          'username' => $username,
-          'email' => $email,
-          'password' => $row = $password_hash,
-        ];
+			$username = '';
+			$password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-        ///////////////////////// GET DATA USER PROFILE \\\\\\\\\\\\\\\\\\\\\\
+			// Loop mulai dari baris kedua (skip header)
+			foreach ($sheetData as $rowIndex => $row) {
+				if ($rowIndex === 1) continue; // skip header
 
-        // $data_user_profiles = [
-        //   'test'                  => trim($row['B']),
-        //   'user_id'               => trim($row['B']),
-        //   'firstname'             => trim($row['B']),
-        //   'lastname'              => trim($row['B']),
-        //   'gender'                => trim($row['B']),
-        //   'idtype'                => trim($row['B']),
-        //   'idcard'                => trim($row['B']),
-        //   'birthplace'            => trim($row['B']),
-        //   'dob'                   => trim($row['B']),
-        //   'mobilephone'           => trim($row['B']),
-        //   'kolektif_name_id'      => trim($row['B']),
-        // ];
+				// Skip baris kosong
+				if (empty(array_filter($row))) continue;
 
-        ///////////////////////// GET DATA USER ADDRESS \\\\\\\\\\\\\\\\\\\\\\
+				// Ambil value gender dari kolom E
+				$gender_excel = strtolower(trim($row['E'])); // lowercase biar aman
 
-        // $data_user_address = [
-        //   'test' => trim($row['C'])
-        // ];
-        // var_dump($data_users);
-        // exit;
-        // Validasi kolom wajib
-        // if (!empty($data['no_acpe']) && !empty($data['doi']) && !empty($data['nama'])) {
-        // }
-        $this->Pii_Model->insert_from_import($data_users);
-      }
+				// Mapping ke value database
+				if ($gender_excel === 'laki-laki') {
+					$gender_db = 'Male';
+				} elseif ($gender_excel === 'perempuan') {
+					$gender_db = 'Female';
+				} else {
+					$gender_db = null; // atau default lain kalau datanya kosong/tidak valid
+				}
+				$email = trim($row['D']);
+				$kodkel = $this->input->post('kodkel', true);
+				$firstname = trim($row['B']);
+				$lastname = trim($row['C']);
+				$idcard = trim($row['G']);
+				$birthplace = trim($row['I']);
 
-      $this->session->set_flashdata('success_import', '✅ Data berhasil diimpor.');
-    } catch (\Exception $e) {
-      $this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
-    }
+				$dob_cell = trim($row['J']);
+				$dob_db = null;
 
-    // Hapus file upload untuk keamanan
-    if (file_exists($uploadedFile['full_path'])) {
-      unlink($uploadedFile['full_path']);
-    }
+				if (!empty($dob_cell)) {
+					if (is_numeric($dob_cell)) {
+						// Format tanggal dari serial Excel
+						$dob_db = ExcelDate::excelToDateTimeObject($dob_cell)->format('Y-m-d');
+					} else {
+						// Format manual dari string
+						$dob_db = date('Y-m-d', strtotime($dob_cell));
+					}
+				}
 
-    redirect('/import');
-  }
+				$mobilephone = trim($row['K']);
+
+				// Cek apakah email sudah ada di database
+				$email_exist = $this->db->get_where('users', ['email' => $email])->row();
+
+				// Validasi jika email sudah ada maka akana ada pesan error
+				// Cek apakah email sudah ada di DB
+				if (in_array($email, $existingEmails)) {
+					$this->session->set_flashdata('error', "❌ Email '$email' sudah terdaftar!");
+					redirect('/import');
+					return; // stop proses import
+				}
+
+				$username = '';
+				///////////////////////// GET DATA USERS \\\\\\\\\\\\\\\\\\\\\\
+				$data_users = [
+					'username' => $username,
+					'email' => $email,
+					'password' => $row = $password_hash,
+				];
+
+				///////////////////////// GET DATA USER PROFILE \\\\\\\\\\\\\\\\\\\\\\
+
+
+				$data_profiles = [
+					'user_id'               => '1',
+					'firstname'             => $firstname,
+					'lastname'              => $lastname,
+					'gender'                => $gender_db,
+					'idtype'                => 'Citizen',
+					'idcard'                => $idcard,
+					'birthplace'            => $birthplace,
+					'dob'                   => $dob_db,
+					'mobilephone'           => $mobilephone,
+					'kolektif_name_id'      => htmlspecialchars($kodkel),
+				];
+
+				///////////////////////// GET DATA USER ADDRESS \\\\\\\\\\\\\\\\\\\\\\
+
+				// $data_user_address = [
+				//   'test' => trim($row['C'])
+				// ];
+				// var_dump($data_users, $data_profiles);
+				// exit;
+				// Validasi kolom wajib
+				// if (!empty($data['no_acpe']) && !empty($data['doi']) && !empty($data['nama'])) {
+				// }
+				$this->Pii_Model->insert_from_import($data_users);
+				$this->Pii_Model->insert_data_profiles($data_profiles);
+			}
+
+			$this->session->set_flashdata('success_import', '✅ Data berhasil diimpor.');
+		} catch (\Exception $e) {
+			$this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
+		}
+
+		// Hapus file upload untuk keamanan
+		if (file_exists($uploadedFile['full_path'])) {
+			unlink($uploadedFile['full_path']);
+		}
+
+		redirect('/import');
+	}
 }
