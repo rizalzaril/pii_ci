@@ -37,40 +37,44 @@ class Users extends CI_Controller
 	//get users with ajax
 	public function get_users()
 	{
-		$draw      = intval($this->input->get("draw"));
-		$start     = intval($this->input->get("start"));
-		$length    = intval($this->input->get("length"));
-		$search    = $this->input->get("search")['value'];
-		$order_col = $this->input->get("order_by"); // kolom yg dipilih user
-		$order_dir = $this->input->get("order_dir"); // ASC / DESC
+		$draw         = intval($this->input->get("draw"));
+		$start        = intval($this->input->get("start"));
+		$length       = intval($this->input->get("length"));
+		$search       = $this->input->get("search")['value'];
+		$order_col    = $this->input->get("order_by");
+		$order_dir    = $this->input->get("order_dir");
+		$is_duplicate = $this->input->get("is_duplicate"); // 🔹 ambil filter
 
-		$users     = $this->Users_model->get_users($start, $length, $search, $order_col, $order_dir);
-		$total     = $this->Users_model->count_all();
-		$filtered  = $this->Users_model->count_filtered($search);
+		$users    = $this->Users_model->get_users($start, $length, $search, $order_col, $order_dir, $is_duplicate);
+		$total    = $this->Users_model->count_all();
+		$filtered = $this->Users_model->count_filtered($search, $is_duplicate);
 
 		$data = [];
 		$no = $start + 1;
+
 		foreach ($users as $user) {
-			$emailDisplay = $user->is_duplicate == 1
-				? '<span style="color: red; font-weight: bold;"> </span> <span class="badge bg-danger">Duplikat</span>'
+			$existsInUsers = $this->db
+				->get_where('users', ['email' => $user->email])
+				->num_rows() > 0;
+
+			$emailDisplay = $existsInUsers
+				? '<span class="text text-danger fw-bold">' . $user->email . '</span>'
 				: $user->email;
 
-			$statusDisplay = $user->activated == 1
-				? '<span class="badge bg-success">Aktif</span>'
-				: '<span class="badge bg-secondary">Nonaktif</span>';
+			$duplicateBadge = $existsInUsers
+				? '<span class="badge bg-danger">Cannot Import <i class="fa fa-times"></i></span>'
+				: '<span class="badge bg-success">Ready to Import <i class="fa-solid fa-triangle-exclamation"></i></span>';
 
 			$data[] = [
 				$no++,
 				$user->username,
-				$user->email,
-				$statusDisplay,
 				$emailDisplay,
+				$duplicateBadge,
 				'<a href="' . base_url('users/get_user_detail/' . $user->id) . '" class="btn btn-sm btn-dark"><i class="fa fa-eye"></i></a>
-         <a href="' . base_url('users/edit/' . $user->id) . '" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>
-         <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="' . $user->id . '"><i class="fa fa-trash"></i></a>'
+             <a href="' . base_url('users/edit/' . $user->id) . '" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>
+             <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="' . $user->id . '"><i class="fa fa-trash"></i></a>'
 			];
 		}
-
 
 		echo json_encode([
 			"draw" => $draw,
@@ -79,6 +83,7 @@ class Users extends CI_Controller
 			"data" => $data
 		]);
 	}
+
 
 
 

@@ -50,34 +50,50 @@ class Users_model extends CI_Model
 	//   return $this->db->get()->result();
 	// }
 
-	public function get_users($start, $length, $search = null, $order_col = 'id', $order_dir = 'DESC')
+	public function get_users($start, $length, $search = null, $order_col = null, $order_dir = null, $is_duplicate = null)
 	{
-		$this->db->select('*')->from('dummy_users');
+		$this->db->select('*');
+		$this->db->from('dummy_users');
+
+		// 🔹 Filter duplicate berdasarkan tabel users
+		if ($is_duplicate !== null && $is_duplicate !== '') {
+			if ($is_duplicate == 1) {
+				// Duplicate Only → email sudah ada di users
+				$this->db->where("email IN (SELECT email FROM users)", NULL, FALSE);
+			} elseif ($is_duplicate == 0) {
+				// Non Duplicate Only → email belum ada di users
+				$this->db->where("email NOT IN (SELECT email FROM users)", NULL, FALSE);
+			}
+		}
 
 		if (!empty($search)) {
-			$this->db->group_start()
-				->like('username', $search)
-				->or_like('email', $search)
-				->group_end();
+			$this->db->group_start();
+			$this->db->like('username', $search);
+			$this->db->or_like('email', $search);
+			$this->db->group_end();
 		}
 
-		// mapping nama kolom yang valid
-		$allowed_cols = ['id', 'username', 'email'];
-		if (!in_array($order_col, $allowed_cols)) {
-			$order_col = 'id';
+		if ($order_col && $order_dir) {
+			$this->db->order_by($order_col, $order_dir);
+		} else {
+			$this->db->order_by('id', 'DESC');
 		}
 
-		$order_dir = strtoupper($order_dir) === 'ASC' ? 'ASC' : 'DESC';
-
-		$this->db->order_by($order_col, $order_dir);
 		$this->db->limit($length, $start);
-
 		return $this->db->get()->result();
 	}
 
-	public function count_filtered($search = null)
+	public function count_filtered($search = null, $is_duplicate = null)
 	{
 		$this->db->from('dummy_users');
+
+		if ($is_duplicate !== null && $is_duplicate !== '') {
+			if ($is_duplicate == 1) {
+				$this->db->where("email IN (SELECT email FROM users)", NULL, FALSE);
+			} elseif ($is_duplicate == 0) {
+				$this->db->where("email NOT IN (SELECT email FROM users)", NULL, FALSE);
+			}
+		}
 
 		if (!empty($search)) {
 			$this->db->group_start();
@@ -88,6 +104,7 @@ class Users_model extends CI_Model
 
 		return $this->db->count_all_results();
 	}
+
 
 
 	public function count_all()

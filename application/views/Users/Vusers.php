@@ -99,6 +99,17 @@
 		</select>
 	</div>
 
+	<div class="mb-3">
+		<label>Filter by Duplicate:</label>
+		<select id="filter_duplicate" class="form-select" style="width:auto; display:inline-block;">
+			<option value="">All</option>
+			<option value="1">Duplicate Only</option>
+			<option value="0">Non Duplicate Only</option>
+		</select>
+	</div>
+
+
+
 
 	<table id="table_users" class="table table-sm table-striped">
 		<thead>
@@ -106,8 +117,7 @@
 				<th>No</th>
 				<th>Username</th>
 				<th>Email</th>
-				<th>Status</th>
-				<th>Is Duplicate</th>
+				<th>Import Status</th>
 				<th>Aksi</th>
 			</tr>
 		</thead>
@@ -194,12 +204,12 @@
 					d.order_by = parts[0];
 					d.order_dir = parts[1];
 				}
+				d.is_duplicate = $('#filter_duplicate').val(); // kirim filter duplicate
 			}
 		}
 	});
 
-	// reload table saat dropdown berubah
-	$('#sort_by').on('change', function() {
+	$('#sort_by, #filter_duplicate').on('change', function() {
 		table.ajax.reload();
 	});
 </script>
