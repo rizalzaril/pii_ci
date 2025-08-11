@@ -63,7 +63,7 @@ class Users extends CI_Controller
 
 			$duplicateBadge = $existsInUsers
 				? '<span class="badge bg-danger">Cannot Import <i class="fa fa-times"></i></span>'
-				: '<span class="badge bg-success">Ready to Import <i class="fa-solid fa-triangle-exclamation"></i></span>';
+				: '<span class="badge bg-success">Ready to Import <i class="fa fa-check"></i></span>';
 
 			$data[] = [
 				$no++,
