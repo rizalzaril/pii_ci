@@ -12,19 +12,6 @@
 
           <div class="card-body">
 
-            <div class="card my-4">
-              <div class="card-header bg-success text-white">Import dari Excel</div>
-              <div class="card-body">
-                <?= form_open_multipart('user_profiles/import_excel/' . ($profile_data->user_id ?? '')) ?>
-                <div class="mb-3">
-                  <input type="file" name="excel_file" class="form-control" accept=".xls,.xlsx" required>
-                </div>
-                <button type="submit" class="btn btn-success">Import</button>
-                <?= form_close() ?>
-              </div>
-            </div>
-
-
             <!-- Informasi pribadi -->
             <div class="card">
               <div class="card-header">
@@ -61,11 +48,12 @@
                   <div class="col-sm-8">
                     <select name="gender" id="gender" class="form-control">
                       <option value="">-- Pilih Gender --</option>
-                      <option value="Laki-laki" <?= (isset($profile_data->gender) && $profile_data->gender == 'Laki-laki') ? 'selected' : '' ?>>Male</option>
-                      <option value="Perempuan" <?= (isset($profile_data->gender) && $profile_data->gender == 'Perempuan') ? 'selected' : '' ?>>Perempuan</option>
+                      <option value="Male" <?= (!empty($profile_data->gender) && $profile_data->gender === 'Male') ? 'selected' : '' ?>>Male</option>
+                      <option value="Female" <?= (!empty($profile_data->gender) && $profile_data->gender === 'Female') ? 'selected' : '' ?>>Female</option>
                     </select>
                   </div>
                 </div>
+
 
                 <div class="row mb-3">
                   <label for="birthplace" class="col-sm-4 col-form-label">Tempat lahir</label>

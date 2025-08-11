@@ -22,28 +22,31 @@
           <div class="card-header bg-success text-white">Import dari Excel</div>
           <div class="card-body">
 
-            <?= form_open_multipart('import/import_proccess/') ?>
+            <?= form_open_multipart('import/import_proccess/', ['id' => 'formImport']) ?>
 
             <!-- Form file upload XLSX -->
             <div class="mb-3">
               <label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label>
-              <input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv," required>
+              <input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required>
             </div>
 
-            <!-- <div class="mb-3">
+            <div class="mb-3">
               <label for="kodkel" class="form-label fw-bold">Kode Kelompok*</label>
-              <select name="" id="" class="form-control form-select shadow-sm">
-                <option value="">1</option>
-                <option value="">1</option>
-                <option value="">1</option>
+              <select name="kodkel" id="kodkel" class="form-control form-select shadow-sm">
+                <?php foreach ($list_kelompok as $kodkel) : ?>
+                  <option value="<?= $kodkel->id ?>"><?= $kodkel->id ?>. <?= $kodkel->name ?></option>
+                <?php endforeach; ?>
               </select>
-            </div> -->
+            </div>
 
             <div class="mb-3">
               <label for="passwordImport" class="form-label fw-bold">Password*</label>
-              <input type="password" class="form-control shadow-sm" placeholder="Masukkan Password Default untuk Aplikan" required>
+              <input type="password" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required>
             </div>
+
             <button type="submit" class="btn btn-success">Import</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
             <?= form_close() ?>
 
           </div>

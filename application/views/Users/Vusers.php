@@ -7,6 +7,14 @@
 		</div>
 	<?php endif; ?>
 
+
+	<?php if ($this->session->flashdata('error_import')): ?>
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<strong>Gagal Import!</strong> <?= $this->session->flashdata('error_import'); ?>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	<?php endif; ?>
+
 	<a href="<?= base_url('/dashboard/add_data') ?>" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add data </a>
 
 
@@ -22,7 +30,7 @@
 		<div class="modal-dialog ">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+					<h5 class="modal-title" id="exampleModalLabel">Import XLSX/CSV</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
@@ -49,6 +57,7 @@
 					</div>
 
 					<button type="submit" class="btn btn-success">Import</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
 					<?= form_close() ?>
 
@@ -68,15 +77,14 @@
 
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary">Save changes</button>
+
 				</div>
 			</div>
 		</div>
 	</div>
 
 
-	<h3>List User</h3>
+	<h3>Data Users</h3>
 
 	<div class="mb-3">
 		<label>Sort by key:</label>

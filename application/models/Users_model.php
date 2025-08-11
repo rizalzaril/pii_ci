@@ -20,10 +20,10 @@ class Users_model extends CI_Model
 	public function get_user_detail($id)
 	{
 		return $this->db
-			->select('users.*, user_profiles.*')
-			->from('users')
-			->join('user_profiles', 'user_profiles.user_id = users.id', 'left')
-			->where('users.id', $id)
+			->select('dummy_users.*, dummy_user_profiles.*')
+			->from('dummy_users')
+			->join('dummy_user_profiles', 'dummy_user_profiles.user_id = dummy_users.id', 'left')
+			->where('dummy_users.id', $id)
 			->limit(10)
 			->get()
 			->row();
@@ -52,7 +52,7 @@ class Users_model extends CI_Model
 
 	public function get_users($start, $length, $search = null, $order_col = 'id', $order_dir = 'DESC')
 	{
-		$this->db->select('*')->from('users');
+		$this->db->select('*')->from('dummy_users');
 
 		if (!empty($search)) {
 			$this->db->group_start()
@@ -77,7 +77,7 @@ class Users_model extends CI_Model
 
 	public function count_filtered($search = null)
 	{
-		$this->db->from('users');
+		$this->db->from('dummy_users');
 
 		if (!empty($search)) {
 			$this->db->group_start();
@@ -92,6 +92,6 @@ class Users_model extends CI_Model
 
 	public function count_all()
 	{
-		return $this->db->count_all('users');
+		return $this->db->count_all('dummy_users');
 	}
 }
