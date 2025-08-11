@@ -50,13 +50,12 @@ class Import extends CI_Controller
       $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
       $kodkel = $this->input->post('kodkel', true);
-      $passwordDefault = $this->input->post('password', true);
+      $passwordDefault = $this->input->post('password', true) ?: '123';
 
       // Ambil semua email existing dari DB
       $existingEmails = $this->db->select('email')->get('dummy_users')->result_array();
       $existingEmails = array_column($existingEmails, 'email');
 
-      $errors = [];
       $duplicateEmails = [];
 
       foreach ($sheetData as $rowIndex => $row) {
@@ -66,20 +65,23 @@ class Import extends CI_Controller
         $username_excel = trim($row['W']); // Kolom username di Excel
         $email = trim($row['D']);
 
+        // Skip jika email kosong
+        if (!$email) continue;
+
+        // Cek email duplikat
         if (in_array($email, $existingEmails)) {
-          $duplicateEmails[] = $email;
-          continue; //skip insert
+          // Update flag is_duplicate di DB
+          $this->db->where('email', $email)->update('dummy_users', ['is_duplicate' => 1]);
+
+          // Simpan email & baris untuk pesan error
+          $duplicateEmails[] = "Baris {$rowIndex}: {$email}";
+          continue;
         }
-
-
-        //Jika email kosong di excel maka skip insert
-
 
         // Jika username ada isinya, skip insert
         if (!empty($username_excel)) {
           continue;
         }
-
 
         // Mapping gender
         $gender_excel = strtolower(trim($row['E']));
@@ -104,9 +106,10 @@ class Import extends CI_Controller
 
         // ===================== INSERT USERS =====================
         $data_users = [
-          'username' => '',
-          'email'    => $email,
-          'password' => password_hash($passwordDefault, PASSWORD_DEFAULT),
+          'username'     => '',
+          'email'        => $email,
+          'password'     => password_hash($passwordDefault, PASSWORD_DEFAULT),
+          'is_duplicate' => 0
         ];
         $this->Pii_Model->insert_from_import($data_users);
 
@@ -143,7 +146,7 @@ class Import extends CI_Controller
         ];
         $this->Pii_Model->insert_user_address($data_address);
 
-        // Tambahkan email ke existingEmails supaya tidak duplikat di file
+        // Tambahkan email ke existingEmails supaya tidak duplikat di file yang sama
         $existingEmails[] = $email;
       }
 
@@ -153,20 +156,12 @@ class Import extends CI_Controller
       }
 
       // Feedback hasil import
-      // Setelah loop, cek apakah ada duplikat
       if (!empty($duplicateEmails)) {
-        // Buat string pesan dengan daftar email duplikat, satu email per baris
-
         $message = "Email berikut sudah terdaftar di database:<br>" . implode('<br>', $duplicateEmails);
         $this->session->set_flashdata('error_import', $message);
       } else {
         $this->session->set_flashdata('success_import', '✅ Semua data berhasil diimpor.');
       }
-      // if (!empty($errors)) {
-      //   $this->session->set_flashdata('error', implode('<br>', $errors));
-      // } else {
-      //   $this->session->set_flashdata('success_import', '✅ Semua data berhasil diimpor.');
-      // }
     } catch (\Exception $e) {
       $this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
     }

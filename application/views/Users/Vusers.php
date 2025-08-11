@@ -84,7 +84,7 @@
 	</div>
 
 
-	<h3>Data Users</h3>
+	<h3 class="d-flex justify-content-center">Dummy Users</h3>
 
 	<div class="mb-3">
 		<label>Sort by key:</label>
@@ -107,6 +107,7 @@
 				<th>Username</th>
 				<th>Email</th>
 				<th>Status</th>
+				<th>Is Duplicate</th>
 				<th>Aksi</th>
 			</tr>
 		</thead>
