@@ -61,7 +61,7 @@ class Users extends CI_Controller
 
 		foreach ($users as $user) {
 			$existsInUsers = $this->db
-				->get_where('users', ['email' => $user->email])
+				->get_where('tes_users', ['email' => $user->email])
 				->num_rows() > 0;
 
 			$emailDisplay = $existsInUsers
@@ -115,7 +115,9 @@ class Users extends CI_Controller
 	public function delete_all_dummy_users()
 	{
 		// Kosongkan tabel dummy_users
-		$this->db->empty_table('dummy_users');
+		$data = $this->db->empty_table('dummy_users');
+		var_dump($data);
+		exit;
 
 		// Kosongkan tabel dummy_user_profiles
 		$this->db->empty_table('dummy_user_profiles');

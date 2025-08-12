@@ -53,7 +53,7 @@ class Pii_Model extends CI_Model
 
 	public function insert_from_import($data)
 	{
-		return $this->db->insert('dummy_users', $data);
+		return $this->db->insert('tes_users', $data);
 	}
 
 	public function insert_data_profiles($data_profiles)
@@ -71,7 +71,7 @@ class Pii_Model extends CI_Model
 
 	public function get_users($start, $length, $search = null, $order_col = 'id', $order_dir = 'DESC')
 	{
-		$this->db->select('*')->from('users');
+		$this->db->select('*')->from('tes_users');
 
 		if (!empty($search)) {
 			$this->db->group_start()
@@ -98,7 +98,7 @@ class Pii_Model extends CI_Model
 
 	public function count_filtered($search = null)
 	{
-		$this->db->from('dummy_users');
+		$this->db->from('users');
 
 		if (!empty($search)) {
 			$this->db->group_start();
@@ -113,7 +113,7 @@ class Pii_Model extends CI_Model
 
 	public function count_all()
 	{
-		return $this->db->count_all('dummy_users');
+		return $this->db->count_all('users');
 	}
 
 

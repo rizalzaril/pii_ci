@@ -53,7 +53,7 @@
 
 					<div class="mb-3">
 						<label for="passwordImport" class="form-label fw-bold">Password*</label>
-						<input type="password" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required>
+						<input type="text" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required>
 					</div>
 
 					<button type="submit" class="btn btn-success">Import</button>

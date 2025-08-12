@@ -53,7 +53,7 @@ class Import extends CI_Controller
       $passwordDefault = $this->input->post('password', true) ?: '123';
 
       // Ambil semua email existing dari DB
-      $existingEmails = $this->db->select('email')->get('dummy_users')->result_array();
+      $existingEmails = $this->db->select('email')->get('tes_users')->result_array();
       $existingEmails = array_column($existingEmails, 'email');
 
       $duplicateEmails = [];
@@ -75,7 +75,7 @@ class Import extends CI_Controller
         // Cek email duplikat
         if (in_array($email, $existingEmails)) {
           // Update flag is_duplicate di DB
-          $this->db->where('email', $email)->update('dummy_users', ['is_duplicate' => 1]);
+          $this->db->where('email', $email)->update('tes_users', ['is_duplicate' => 1]);
 
           // Simpan email & baris untuk pesan error
           $duplicateEmails[] = "Baris {$rowIndex}: {$email}";
@@ -120,7 +120,6 @@ class Import extends CI_Controller
           'username'     => '',
           'email'        => $email,
           'password'     => password_hash($passwordDefault, PASSWORD_DEFAULT),
-          'is_duplicate' => 0
         ];
 
         //debug data_users insert
@@ -136,6 +135,7 @@ class Import extends CI_Controller
 
         // ===================== INSERT USER PROFILE =====================
         $data_profiles = [
+          'id'               => $user_id,
           'user_id'          => $user_id,
           'firstname'        => trim($row['B']),
           'lastname'         => trim($row['C']),
