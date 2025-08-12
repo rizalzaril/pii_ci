@@ -96,18 +96,36 @@ class Users extends CI_Controller
 	public function delete_selected_dummy_users()
 	{
 		$ids = $this->input->post('ids');
+
 		if (!empty($ids)) {
+			// Hapus dari tabel dummy_users
 			$this->db->where_in('id', $ids)->delete('dummy_users');
+
+			// Hapus dari tabel dummy_user_profiles
+			$this->db->where_in('user_id', $ids)->delete('dummy_user_profiles');
+
+			// Hapus dari tabel dummy_user_address
+			$this->db->where_in('user_id', $ids)->delete('dummy_user_address');
 		}
 
 		echo json_encode(['Status' => 'Delete selected success!']);
 	}
 
+
 	public function delete_all_dummy_users()
 	{
-		$this->empty_table('dummy_users');
+		// Kosongkan tabel dummy_users
+		$this->db->empty_table('dummy_users');
+
+		// Kosongkan tabel dummy_user_profiles
+		$this->db->empty_table('dummy_user_profiles');
+
+		// Kosongkan tabel dummy_user_address
+		$this->db->empty_table('dummy_user_address');
+
 		echo json_encode(['Status' => 'Delete success!']);
 	}
+
 
 
 
