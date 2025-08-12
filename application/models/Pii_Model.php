@@ -123,4 +123,15 @@ class Pii_Model extends CI_Model
 	{
 		return $this->db->get('m_kolektif')->result();
 	}
+
+	//CEK NEXT_ID BERDASARKAN LAST_ID DARI TB USERS
+	public function cek_next_id_users()
+	{
+		$this->db->select('id');
+		$this->db->order_by('id', 'DESC');
+		$query = $this->db->get('users');
+		$row = $query->row();
+
+		return $row ? $row->id + 50 : 1;
+	}
 }

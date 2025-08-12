@@ -21,8 +21,15 @@ class Users extends CI_Controller
 
 		//Jika data kelompok 0 maka tampilkan pesan
 		if (!$data_kelompok) {
-			echo 'Data kosong';
+			echo 'Data Kelompok kosong';
 		}
+
+		//cek last_id dari table users
+		// $last_id = $this->Pii_Model->cek_next_id_users();
+		// echo '<pre>';
+		// var_dump('NEXT ID USERS:' . $last_id);
+		// echo '</pre>';
+		// exit;
 
 		// echo '<pre>';
 		// var_dump($data_kelompok);
@@ -66,15 +73,17 @@ class Users extends CI_Controller
 				: '<span class="badge bg-success">Ready to Import <i class="fa fa-check"></i></span>';
 
 			$data[] = [
+				'<input type="checkbox" class="row_checkbox" value="' . $user->id . '">',
 				$no++,
+				$user->id,
 				$user->username,
 				$emailDisplay,
 				$duplicateBadge,
-				'<a href="' . base_url('users/get_user_detail/' . $user->id) . '" class="btn btn-sm btn-dark"><i class="fa fa-eye"></i></a>
-             <a href="' . base_url('users/edit/' . $user->id) . '" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>
-             <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="' . $user->id . '"><i class="fa fa-trash"></i></a>'
+				$user->created,
+				'<a href="' . base_url('users/get_user_detail/' . $user->id) . '" class="btn btn-sm btn-dark"><i class="fa fa-eye"></i></a>',
 			];
 		}
+
 
 		echo json_encode([
 			"draw" => $draw,
@@ -82,6 +91,22 @@ class Users extends CI_Controller
 			"recordsFiltered" => $filtered,
 			"data" => $data
 		]);
+	}
+
+	public function delete_selected_dummy_users()
+	{
+		$ids = $this->input->post('ids');
+		if (!empty($ids)) {
+			$this->db->where_in('id', $ids)->delete('dummy_users');
+		}
+
+		echo json_encode(['Status' => 'Delete selected success!']);
+	}
+
+	public function delete_all_dummy_users()
+	{
+		$this->empty_table('dummy_users');
+		echo json_encode(['Status' => 'Delete success!']);
 	}
 
 

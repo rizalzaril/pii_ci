@@ -1,7 +1,7 @@
 <div class="container mt-4">
 	<div class="card">
 		<div class="card-body bg-light">
-			<h4 class="text text-center">Input Data</h4>
+			<h4 class="text text-center"></h4>
 			<hr>
 
 			<?php if ($this->session->flashdata('success_save')): ?>

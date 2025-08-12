@@ -58,6 +58,10 @@ class Import extends CI_Controller
 
       $duplicateEmails = [];
 
+      //cek last_id dari table users
+      $last_id_users = $this->Pii_Model->cek_next_id_users();
+
+
       foreach ($sheetData as $rowIndex => $row) {
         if ($rowIndex === 1) continue; // Skip header
         if (empty(array_filter($row))) continue; // Skip baris kosong
@@ -104,13 +108,26 @@ class Import extends CI_Controller
           }
         }
 
+        //Kalau id yang dimasukkan <= last_id_users, skip
+        if (!empty($row['id']) && $row['id'] <= $last_id_users) {
+          continue; //skip
+        }
+
+
         // ===================== INSERT USERS =====================
         $data_users = [
+          'id'           => $last_id_users++,
           'username'     => '',
           'email'        => $email,
           'password'     => password_hash($passwordDefault, PASSWORD_DEFAULT),
           'is_duplicate' => 0
         ];
+
+        //debug data_users insert
+        // echo '<pre>';
+        // var_dump($data_users);
+        // echo '</pre>';
+        // exit;
         $this->Pii_Model->insert_from_import($data_users);
 
         // Ambil ID user yang baru dibuat

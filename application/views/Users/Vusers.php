@@ -108,20 +108,32 @@
 		</select>
 	</div>
 
-
+	<!-- Delete form -->
+	<div class="mb-3">
+		<button id="btn_delete_selected" class="btn btn-danger btn-sm">
+			<i class="fa fa-trash"></i> Delete Selected
+		</button>
+		<button id="btn_delete_all" class="btn btn-warning btn-sm">
+			<i class="fa fa-trash"></i> Delete All
+		</button>
+	</div>
 
 
 	<table id="table_users" class="table table-sm table-striped">
 		<thead>
-			<tr>
+			<tr class="center">
+				<th><input type="checkbox" id="select_all"></th>
 				<th>No</th>
+				<th>ID</th>
 				<th>Username</th>
 				<th>Email</th>
 				<th>Import Status</th>
+				<th>Created</th>
 				<th>Aksi</th>
 			</tr>
 		</thead>
 	</table>
+
 
 </div>
 <?php $this->load->view('footer'); ?>
@@ -191,25 +203,80 @@
 
 <!-- Inisialisasi DataTable table users -->
 <script>
-	let table = new DataTable('#table_users', {
-		processing: true,
-		serverSide: true,
-		ajax: {
-			url: "<?= base_url('users/get_users') ?>",
-			type: "GET",
-			data: function(d) {
-				let sort_val = $('#sort_by').val();
-				if (sort_val) {
-					let parts = sort_val.split('|');
-					d.order_by = parts[0];
-					d.order_dir = parts[1];
+	$(document).ready(function() {
+		let table = new DataTable('#table_users', {
+			processing: true,
+			serverSide: true,
+			ajax: {
+				url: "<?= base_url('users/get_users') ?>",
+				type: "GET",
+				data: function(d) {
+					let sort_val = $('#sort_by').val();
+					if (sort_val) {
+						let parts = sort_val.split('|');
+						d.order_by = parts[0];
+						d.order_dir = parts[1];
+					}
+					d.is_duplicate = $('#filter_duplicate').val();
 				}
-				d.is_duplicate = $('#filter_duplicate').val(); // kirim filter duplicate
 			}
-		}
-	});
+		});
 
-	$('#sort_by, #filter_duplicate').on('change', function() {
-		table.ajax.reload();
+		$('#sort_by, #filter_duplicate').on('change', function() {
+			table.ajax.reload();
+		});
+
+		// Select All
+		$('#select_all').on('click', function() {
+			$('.row_checkbox').prop('checked', this.checked);
+		});
+
+		// Delete Selected
+		$('#btn_delete_selected').on('click', function() {
+			let ids = [];
+			$('.row_checkbox:checked').each(function() {
+				ids.push($(this).val());
+			});
+
+			if (ids.length === 0) {
+				Swal.fire('Warning', 'Pilih minimal 1 data!', 'warning');
+				return;
+			}
+
+			Swal.fire({
+				title: 'Yakin hapus data terpilih?',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonText: 'Ya, hapus!',
+				cancelButtonText: 'Batal'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					$.post("<?= base_url('users/delete_selected_dummy_users') ?>", {
+						ids: ids
+					}, function(response) {
+						Swal.fire('Sukses', 'Data terpilih berhasil dihapus', 'success');
+						table.ajax.reload();
+					});
+				}
+			});
+		});
+
+		// Delete All
+		$('#btn_delete_all').on('click', function() {
+			Swal.fire({
+				title: 'Yakin hapus semua data?',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonText: 'Ya, hapus semua!',
+				cancelButtonText: 'Batal'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					$.post("<?= base_url('users/delete_all_dummy_users') ?>", function(response) {
+						Swal.fire('Sukses', 'Semua data berhasil dihapus', 'success');
+						table.ajax.reload();
+					});
+				}
+			});
+		});
 	});
 </script>
