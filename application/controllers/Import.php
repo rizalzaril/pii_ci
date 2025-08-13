@@ -88,7 +88,7 @@ class Import extends CI_Controller
 				}
 
 				// Mapping gender
-				$gender_excel = strtolower(trim($row['E']));
+				$gender_excel = strtolower(trim($row['H']));
 				if ($gender_excel === 'laki-laki') {
 					$gender_db = 'Male';
 				} elseif ($gender_excel === 'perempuan') {
@@ -98,7 +98,7 @@ class Import extends CI_Controller
 				}
 
 				// Format DOB
-				$dob_cell = trim($row['J']);
+				$dob_cell = trim($row['L']);
 				$dob_db = null;
 				if (!empty($dob_cell)) {
 					if (is_numeric($dob_cell)) {
@@ -131,7 +131,7 @@ class Import extends CI_Controller
 
 				// Ambil ID user yang baru dibuat
 				$user_id = $this->db->insert_id();
-				$mobilephone = trim($row['K']);
+				$mobilephone = trim($row['M']);
 
 				// ===================== INSERT USER PROFILE =====================
 				$data_profiles = [
@@ -141,11 +141,14 @@ class Import extends CI_Controller
 					'lastname'         => trim($row['C']),
 					'gender'           => $gender_db,
 					'idtype'           => 'Citizen',
-					'idcard'           => trim($row['G']),
-					'birthplace'       => trim($row['I']),
+					'idcard'           => trim($row['J']),
+					'birthplace'       => trim($row['K']),
 					'dob'              => $dob_db,
 					'mobilephone'      => $mobilephone,
 					'kolektif_name_id' => htmlspecialchars($kodkel),
+					// 'photo'      			 => trim($row['V']),
+					// 'idfile'      			 => trim($row['T']),
+					// 'idfile'      			 => trim($row['T']),
 				];
 				$this->Pii_Model->insert_data_profiles($data_profiles);
 
@@ -153,11 +156,11 @@ class Import extends CI_Controller
 				$data_address = [
 					'user_id'     => $user_id,
 					'addresstype' => 'Rumah',
-					'address'     => trim($row['L']),
-					'city'        => trim($row['M']),
-					'province'    => trim($row['N']),
+					'address'     => trim($row['N']),
+					'city'        => trim($row['O']),
+					'province'    => trim($row['P']),
 					'phone'       => $mobilephone,
-					'zipcode'     => trim($row['O']),
+					'zipcode'     => trim($row['Q']),
 					'email'       => $email,
 					'createddate' => date('Y-m-d h:i:s'),
 				];
