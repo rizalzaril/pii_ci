@@ -53,16 +53,16 @@ class Users_model extends CI_Model
 	public function get_users($start, $length, $search = null, $order_col = null, $order_dir = null, $is_duplicate = null)
 	{
 		$this->db->select('*');
-		$this->db->from('tes_users');
+		$this->db->from('users');
 
 		// 🔹 Filter duplicate berdasarkan tabel users
 		if ($is_duplicate !== null && $is_duplicate !== '') {
 			if ($is_duplicate == 1) {
 				// Duplicate Only → email sudah ada di users
-				$this->db->where("email IN (SELECT email FROM tes_users)", NULL, FALSE);
+				$this->db->where("email IN (SELECT email FROM users)", NULL, FALSE);
 			} elseif ($is_duplicate == 0) {
 				// Non Duplicate Only → email belum ada di users
-				$this->db->where("email NOT IN (SELECT email FROM tes_users)", NULL, FALSE);
+				$this->db->where("email NOT IN (SELECT email FROM users)", NULL, FALSE);
 			}
 		}
 
@@ -85,13 +85,13 @@ class Users_model extends CI_Model
 
 	public function count_filtered($search = null, $is_duplicate = null)
 	{
-		$this->db->from('tes_users');
+		$this->db->from('users');
 
 		if ($is_duplicate !== null && $is_duplicate !== '') {
 			if ($is_duplicate == 1) {
-				$this->db->where("email IN (SELECT email FROM tes_users)", NULL, FALSE);
+				$this->db->where("email IN (SELECT email FROM users)", NULL, FALSE);
 			} elseif ($is_duplicate == 0) {
-				$this->db->where("email NOT IN (SELECT email FROM tes_users)", NULL, FALSE);
+				$this->db->where("email NOT IN (SELECT email FROM users)", NULL, FALSE);
 			}
 		}
 
@@ -109,6 +109,6 @@ class Users_model extends CI_Model
 
 	public function count_all()
 	{
-		return $this->db->count_all('tes_users');
+		return $this->db->count_all('users');
 	}
 }

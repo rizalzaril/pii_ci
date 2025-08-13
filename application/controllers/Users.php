@@ -61,7 +61,7 @@ class Users extends CI_Controller
 
 		foreach ($users as $user) {
 			$existsInUsers = $this->db
-				->get_where('tes_users', ['email' => $user->email])
+				->get_where('users', ['email' => $user->email])
 				->num_rows() > 0;
 
 			$emailDisplay = $existsInUsers
