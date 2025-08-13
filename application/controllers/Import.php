@@ -66,7 +66,7 @@ class Import extends CI_Controller
 				if ($rowIndex === 1) continue; // Skip header
 				if (empty(array_filter($row))) continue; // Skip baris kosong
 
-				$username_excel = trim($row['W']); // Kolom username di Excel
+				$username_excel = ''; // Kolom username di Excel
 				$email = trim($row['D']);
 
 				// Skip jika email kosong

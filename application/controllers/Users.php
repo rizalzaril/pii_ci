@@ -41,6 +41,19 @@ class Users extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function detail_aer($kta)
+	{
+		$row = $this->Users_model->get_detail_aer($kta);
+		echo '<pre>';
+		var_dump('No KTA:' . $row->no_kta);
+		var_dump('Person ID:' . $row->person_id);
+		// var_dump('Email:' . $row->email);
+		echo '</pre>';
+		exit;
+
+		$this->load->view('aer_details_view', $row);
+	}
+
 	//get users with ajax
 	public function get_users()
 	{

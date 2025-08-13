@@ -29,6 +29,28 @@ class Users_model extends CI_Model
 			->row();
 	}
 
+	/**
+	 * Ambil detail aer berdasarkan kta
+	 * @param string $kta
+	 * @return object|null
+	 */
+	public function get_detail_aer($kta)
+	{
+		$sql = "
+            SELECT aer.*, members.*
+            FROM aer
+            LEFT JOIN members 
+            ON aer.kta COLLATE utf8mb4_unicode_ci = members.no_kta COLLATE utf8mb4_unicode_ci
+            WHERE aer.kta COLLATE utf8mb4_unicode_ci = ?
+            LIMIT 1
+        ";
+
+		$query = $this->db->query($sql, array($kta));
+		return $query->row();
+	}
+
+
+
 
 
 	// public function get_users($start, $length, $search = null)
