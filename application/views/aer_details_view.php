@@ -1,24 +1,3 @@
-<div class="container mt-3">
-  <div class="card bg-light">
-
-    <div class="card-header">
-      <div class="d-flex justify-content-between mt-3">
-        <h5><?= $detail_aer->firstname ?> <?= $detail_aer->lastname ?></h5>
-        <p class="text text-dark">Member Since: <span class="fs-6"><?= date('d/m/Y', strtotime($detail_aer->created))  ?></span></p>
-      </div>
-    </div>
-
-    <div class="card-body">
-
-
-    </div>
-
-
-  </div>
-</div>
-</div>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -66,10 +45,10 @@
 
 <body>
 
-  <div class="container py-4">
+  <div class="container-fluid py-4">
     <div class="row g-4">
       <!-- Left Side -->
-      <div class="col-md-4">
+      <div class="col-md-5">
         <div class="profile-card text-center">
           <img src="<?php echo ($detail_aer->photo != '') ? 'https://updmember.pii.or.id/assets/uploads/' . $detail_aer->photo : ''; ?>"
             class="rounded-circle  mb-3" width="150px" height="150px" alt="Profile">
@@ -78,9 +57,142 @@
           <!-- Profile Left -->
           <h5><?= $detail_aer->firstname ?> <?= $detail_aer->lastname ?></h5>
           <p class="text text-muted">Member Since: <span class="fs-6"><?= date('d/m/Y', strtotime($detail_aer->created))  ?></span></p>
-          <p class="small">
-            Full stack product designer with hands-on experience in solving problems for clients ranging from Real Estate, Hospitality, Hotels, On Demand Healthcare, IT, Services & Social Network among others...
-          </p>
+
+          <div class="card shadow-sm">
+            <div class="card-body bg-light">
+
+              <!-- FIRST NAME -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">First name</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->firstname)
+                      ? htmlspecialchars($detail_aer->firstname)
+                      : '<span class="text-muted">Belum diisi</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+              <!-- LAST NAME -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">Last name</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->lastname)
+                      ? htmlspecialchars($detail_aer->lastname)
+                      : '<span class="text-muted">Belum diisi</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+              <!-- GENDER -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">Gender</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->gender)
+                      ? htmlspecialchars($detail_aer->gender)
+                      : '<span class="text-muted">Belum diisi</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+              <!-- Mobile Phone -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">Mobile Phone</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->mobilephone)
+                      ? htmlspecialchars($detail_aer->mobilephone)
+                      : '<span class="text-muted">Belum diisi</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+              <!-- ID CARD -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">ID Card</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->idcard)
+                      ? htmlspecialchars($detail_aer->idcard)
+                      : '<span class="text-muted">Belum diisi</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+              <!-- VA -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">VA</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->va)
+                      ? htmlspecialchars($detail_aer->va)
+                      : '<span class="text-muted">Belum diisi</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+              <!-- DOB -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">Date of Birth</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->dob)
+                      ? ucwords($detail_aer->birthplace) . ', ' . htmlspecialchars(date('d-m-Y', strtotime($detail_aer->dob)))
+                      : '<span class="text-muted">-</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+              <!-- WEBSITE -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">Website</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->website)
+                      ? htmlspecialchars($detail_aer->website)
+                      : '<span class="text-muted">-</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+              <!-- DESCRIPTION -->
+              <div class="row mb-3 text-start">
+                <div class="col-md-4 label">
+                  <small class="fw-bold">Description</small>
+                </div>
+                <div class="col-md-8 text-start">
+                  <small>
+                    <?= !empty($detail_aer->profile_description)
+                      ? htmlspecialchars($detail_aer->profile_description)
+                      : '<span class="text-muted">-</span>' ?>
+                  </small>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+
+
           <div class="skills text-start">
             <h6>Skills</h6>
             <span>User Interface Designing</span>
@@ -100,52 +212,106 @@
         </div>
       </div>
 
+      <!---------------------------------------------- RIGHT SIDE --------------------------------------------------->
+
       <!-- Right Side -->
-      <div class="col-md-8">
+      <div class="col-md-7">
         <div class="profile-card">
           <!-- Basic Info -->
-          <div class="row g-3 mb-3">
-            <div class="col-sm-4"><strong>AGE</strong><br>28 years</div>
-            <div class="col-sm-4"><strong>YEARS OF EXPERIENCE</strong><br>6 years</div>
-            <div class="col-sm-4"><strong>PHONE</strong><br>+91 98123 55679</div>
-            <div class="col-sm-4"><strong>CTC</strong><br>12.5 Lc</div>
-            <div class="col-sm-4"><strong>LOCATION</strong><br>Ahmedabad, Gujarat</div>
-            <div class="col-sm-4"><strong>EMAIL</strong><br>ananyasharma@gmail.com</div>
-          </div>
-          <div class="mb-4">
-            <button class="btn btn-primary me-2">Download Resume</button>
-            <button class="btn btn-outline-primary">Send Email</button>
+
+          <!-- Date Of Birth -->
+          <div class="row mb-2">
+            <div class="col-5">
+              <strong>Date of Birth</strong><br>
+            </div>
+            <div class="col-7">
+              <span>
+                <?= !empty($detail_aer->dob)
+                  ? ucwords($detail_aer->birthplace) . ', ' . htmlspecialchars(date('d-m-Y', strtotime($detail_aer->dob)))
+                  : '<span class="text-muted">Belum diisi</span>' ?>
+              </span>
+            </div>
           </div>
 
-          <!-- Experience -->
-          <h6>Experience</h6>
-          <div class="mb-3 d-flex align-items-center">
-            <div class="exp-icon bg-primary me-3">ST</div>
-            <div>
-              <strong>Infosys</strong><br>
-              Product & UI/UX Designer<br>
-              <small>Apr 2016 - Present | Pune, India</small>
+
+          <!-- Mobile Phone -->
+          <div class="row mb-2">
+            <div class="col-5">
+              <strong>Mobile Phone</strong><br>
+            </div>
+            <div class="col-7">
+              <span>
+                <?= !empty($detail_aer->mobilephone)
+                  ?  htmlspecialchars($detail_aer->mobilephone)
+                  : '<span class="text-muted">Belum diisi</span>' ?>
+              </span>
             </div>
           </div>
-          <div class="mb-3 d-flex align-items-center">
-            <div class="exp-icon bg-pink me-3">PS</div>
-            <div>
-              <strong>Pixel Studio</strong><br>
-              UI/UX Designer<br>
-              <small>Oct 2016 - July 2018 | Bengaluru, India</small>
+
+
+          <!-- Email -->
+          <div class="row mb-2">
+            <div class="col-5">
+              <strong>Email</strong><br>
+            </div>
+            <div class="col-7">
+              <span>
+                <?= !empty($detail_aer->email)
+                  ?  htmlspecialchars($detail_aer->email)
+                  : '<span class="text-muted">Belum diisi</span>' ?>
+              </span>
             </div>
           </div>
-          <div class="mb-3 d-flex align-items-center">
-            <div class="exp-icon bg-warning me-3">RS</div>
-            <div>
-              <strong>Rameotion Studio</strong><br>
-              Web Designer<br>
-              <small>Apr 2015 - July 2016 | Bengaluru, India</small>
+
+
+          <!-- VA -->
+          <div class="row mb-2">
+            <div class="col-5">
+              <strong>VA</strong><br>
+            </div>
+            <div class="col-7">
+              <span>
+                <?= !empty($detail_aer->va)
+                  ?  htmlspecialchars($detail_aer->va)
+                  : '<span class="text-muted">Belum diisi</span>' ?>
+              </span>
             </div>
           </div>
+
+
+          <!-- ID CARD -->
+          <div class="row mb-2">
+            <div class="col-5">
+              <strong>ID Card</strong><br>
+            </div>
+            <div class="col-7">
+              <span>
+                <?= !empty($detail_aer->idcard)
+                  ?  htmlspecialchars($detail_aer->idcard)
+                  : '<span class="text-muted">Belum diisi</span>' ?>
+              </span>
+            </div>
+          </div>
+
+
+          <!-- WEBSITE -->
+          <div class="row mb-2">
+            <div class="col-5">
+              <strong>Website</strong><br>
+            </div>
+            <div class="col-7">
+              <span>
+                <?= !empty($detail_aer->website)
+                  ?  htmlspecialchars($detail_aer->website)
+                  : '<span class="text-muted"></span>' ?>
+              </span>
+            </div>
+          </div>
+
+
 
           <!-- Accordion -->
-          <div class="accordion" id="accordionExample">
+          <div class="accordion mt-5" id="accordionExample">
 
             <!-- EDUCATION -->
             <div class="accordion-item">
