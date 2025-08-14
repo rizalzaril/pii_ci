@@ -47,6 +47,7 @@ class Users extends CI_Controller
 		echo '<pre>';
 		var_dump('No KTA:' . $row->no_kta);
 		var_dump('Person ID:' . $row->person_id);
+		var_dump('Person ID:' . $row->firstname . $row->lastname);
 		// var_dump('Email:' . $row->email);
 		echo '</pre>';
 		exit;
