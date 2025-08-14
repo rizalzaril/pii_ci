@@ -59,7 +59,7 @@ class Users extends CI_Controller
 		$search       = $this->input->get("search")['value'];
 		$order_col    = $this->input->get("order_by");
 		$order_dir    = $this->input->get("order_dir");
-		$is_duplicate = $this->input->get("is_duplicate"); // 🔹 ambil filter
+		$is_duplicate = $this->input->get("is_duplicate");
 
 		$users    = $this->Users_model->get_users($start, $length, $search, $order_col, $order_dir, $is_duplicate);
 		$total    = $this->Users_model->count_all();
@@ -81,6 +81,15 @@ class Users extends CI_Controller
 				? '<span class="badge bg-danger">Cannot Import <i class="fa fa-times"></i></span>'
 				: '<span class="badge bg-success">Ready to Import <i class="fa fa-check"></i></span>';
 
+			$actionButtons = '
+            <a href="' . base_url('users/get_user_detail/' . $user->id) . '" class="btn btn-sm btn-dark">
+                <i class="fa fa-eye"></i>
+            </a>
+            <a href="' . base_url('users/edit/' . $user->id) . '" class="btn btn-sm btn-warning">
+                <i class="fa fa-edit"></i>
+            </a>
+        ';
+
 			$data[] = [
 				'<input type="checkbox" class="row_checkbox" value="' . $user->id . '">',
 				$no++,
@@ -89,10 +98,9 @@ class Users extends CI_Controller
 				$emailDisplay,
 				$duplicateBadge,
 				$user->created,
-				'<a href="' . base_url('users/get_user_detail/' . $user->id) . '" class="btn btn-sm btn-dark"><i class="fa fa-eye"></i></a>',
+				$actionButtons
 			];
 		}
-
 
 		echo json_encode([
 			"draw" => $draw,
@@ -102,19 +110,20 @@ class Users extends CI_Controller
 		]);
 	}
 
+
 	public function delete_selected_dummy_users()
 	{
 		$ids = $this->input->post('ids');
 
 		if (!empty($ids)) {
 			// Hapus dari tabel dummy_users
-			$this->db->where_in('id', $ids)->delete('dummy_users');
+			$this->db->where_in('id', $ids)->delete('users');
 
 			// Hapus dari tabel dummy_user_profiles
-			$this->db->where_in('user_id', $ids)->delete('dummy_user_profiles');
+			// $this->db->where_in('user_id', $ids)->delete('user_profiles');
 
 			// Hapus dari tabel dummy_user_address
-			$this->db->where_in('user_id', $ids)->delete('dummy_user_address');
+			// $this->db->where_in('user_id', $ids)->delete('user_address');
 		}
 
 		echo json_encode(['Status' => 'Delete selected success!']);

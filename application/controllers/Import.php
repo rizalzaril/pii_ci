@@ -188,4 +188,81 @@ class Import extends CI_Controller
 
 		redirect('/users');
 	}
+
+
+	///////////////////////////////////IMPORT SET NEW PASSWORD\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+	public function import_update_password()
+	{
+		// Konfigurasi upload
+		$config = [
+			'upload_path'   => './uploads/excel_import/',
+			'allowed_types' => 'xlsx|xls|csv',
+			'max_size'      => 2048,
+			'file_name'     => 'update_password_' . time()
+		];
+
+		$this->load->library('upload', $config);
+
+		if (!$this->upload->do_upload('excel_file')) {
+			$this->session->set_flashdata('error', $this->upload->display_errors());
+			redirect('/users');
+			return;
+		}
+
+		$uploadedFile = $this->upload->data();
+
+		try {
+			// Load spreadsheet
+			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($uploadedFile['full_path']);
+			$sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+			$updatedUsers = [];
+			$notFoundUsers = [];
+
+			foreach ($sheetData as $rowIndex => $row) {
+				if ($rowIndex === 1) continue; // Skip header
+				if (empty(array_filter($row))) continue; // Skip baris kosong
+
+				$email = trim($row['A']); // Kolom A = email
+				$passwordNew = !empty($row['B']) ? trim($row['B']) : '123'; // Kolom B = password baru (default '123')
+
+				if (empty($email)) continue;
+
+				// Cari user berdasarkan email
+				$existingUser = $this->db->where('email', $email)->get('users')->row_array();
+
+				if ($existingUser) {
+					// Update password
+					$this->db->where('id', $existingUser['id'])
+						->update('users', [
+							'password' => password_hash($passwordNew, PASSWORD_DEFAULT)
+						]);
+
+					$updatedUsers[] = "Email {$email}";
+				} else {
+					$notFoundUsers[] = "Baris {$rowIndex}: {$email}";
+				}
+			}
+
+			// Hapus file upload
+			if (file_exists($uploadedFile['full_path'])) {
+				unlink($uploadedFile['full_path']);
+			}
+
+			// Pesan feedback
+			$msg = '';
+			if (!empty($updatedUsers)) {
+				$msg .= "✅ Password berhasil diperbarui untuk:<br>" . implode('<br>', $updatedUsers) . "<br><br>";
+			}
+			if (!empty($notFoundUsers)) {
+				$msg .= "⚠ Email tidak ditemukan:<br>" . implode('<br>', $notFoundUsers);
+			}
+
+			$this->session->set_flashdata('success_import', $msg);
+		} catch (\Exception $e) {
+			$this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
+		}
+
+		redirect('/users');
+	}
 }

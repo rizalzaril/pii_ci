@@ -37,7 +37,7 @@ class Users_model extends CI_Model
 	public function get_detail_aer($kta)
 	{
 		$sql = "
-        SELECT aer.*, members.*, user_profiles.*, user_profiles.description AS profile_description , users.*, user_address.*, user_exp.*, user_edu.*
+        SELECT aer.*, members.*, user_profiles.*, user_profiles.description AS profile_description , users.*, user_address.*, user_exp.*, user_edu.description AS edu_description, user_edu.*, user_exp.description AS exp_description
         FROM aer
         LEFT JOIN members 
             ON aer.kta COLLATE utf8mb4_unicode_ci = members.no_kta COLLATE utf8mb4_unicode_ci

@@ -15,6 +15,7 @@
       border-radius: 10px;
       background: #fff;
       padding: 20px;
+      position: sticky;
     }
 
     .skills span {
@@ -58,6 +59,7 @@
           <h5><?= $detail_aer->firstname ?> <?= $detail_aer->lastname ?></h5>
           <p class="text text-muted">Member Since: <span class="fs-6"><?= date('d/m/Y', strtotime($detail_aer->created))  ?></span></p>
 
+          <!-- CARD INFO PRIBADI -->
           <div class="card shadow-sm">
             <div class="card-body bg-light">
 
@@ -191,26 +193,46 @@
           </div>
 
 
+          <!-- CARD PHONE EMAIL ADDRESS -->
+          <div class="card shadow-sm mt-2">
+            <div class="card-body bg-light">
 
+              <!-- PHONE -->
+              <div class="row mb-2 text-start">
+                <div class="col-md-1 label">
+                  <p class="fw-bold"><i class="fa-solid fa-phone"></i></p>
+                </div>
+                <div class="col-md-11 text-start">
+                  <p>
+                    <?= !empty($detail_aer->phone)
+                      ? htmlspecialchars($detail_aer->phone)
+                      : '<span class="text-muted">Belum diisi</span>' ?>
+                  </p>
+                </div>
+              </div>
 
-          <div class="skills text-start">
-            <h6>Skills</h6>
-            <span>User Interface Designing</span>
-            <span>UX</span>
-            <span>UI</span>
-            <span>Adobe XD</span>
-            <span>Mobile Apps</span>
-            <span>User Research</span>
-            <span>Wireframing</span>
-            <span>Information Architecture</span>
+              <!-- EMAIL -->
+              <div class="row mb-2 text-start">
+                <div class="col-md-1 label">
+                  <p class="fw-bold"><i class="fa-solid fa-at"></i></p>
+                </div>
+                <div class="col-md-11 text-start">
+                  <p>
+                    <?= !empty($detail_aer->email)
+                      ? htmlspecialchars($detail_aer->email)
+                      : '<span class="text-muted">-</span>' ?>
+                  </p>
+                </div>
+              </div>
+
+            </div>
           </div>
-          <div class="note-box mt-3 text-start">
-            <h6>Add Notes</h6>
-            <textarea class="form-control mb-2" rows="3" placeholder="Add notes for future reference"></textarea>
-            <button class="btn btn-primary w-100">Add Note</button>
-          </div>
+
         </div>
       </div>
+
+
+
 
       <!---------------------------------------------- RIGHT SIDE --------------------------------------------------->
 
@@ -219,105 +241,117 @@
         <div class="profile-card">
           <!-- Basic Info -->
 
-          <!-- Date Of Birth -->
-          <div class="row mb-2">
-            <div class="col-5">
-              <strong>Date of Birth</strong><br>
-            </div>
-            <div class="col-7">
-              <span>
-                <?= !empty($detail_aer->dob)
-                  ? ucwords($detail_aer->birthplace) . ', ' . htmlspecialchars(date('d-m-Y', strtotime($detail_aer->dob)))
-                  : '<span class="text-muted">Belum diisi</span>' ?>
-              </span>
-            </div>
-          </div>
-
-
-          <!-- Mobile Phone -->
-          <div class="row mb-2">
-            <div class="col-5">
-              <strong>Mobile Phone</strong><br>
-            </div>
-            <div class="col-7">
-              <span>
-                <?= !empty($detail_aer->mobilephone)
-                  ?  htmlspecialchars($detail_aer->mobilephone)
-                  : '<span class="text-muted">Belum diisi</span>' ?>
-              </span>
-            </div>
-          </div>
-
-
-          <!-- Email -->
-          <div class="row mb-2">
-            <div class="col-5">
-              <strong>Email</strong><br>
-            </div>
-            <div class="col-7">
-              <span>
-                <?= !empty($detail_aer->email)
-                  ?  htmlspecialchars($detail_aer->email)
-                  : '<span class="text-muted">Belum diisi</span>' ?>
-              </span>
-            </div>
-          </div>
-
-
-          <!-- VA -->
-          <div class="row mb-2">
-            <div class="col-5">
-              <strong>VA</strong><br>
-            </div>
-            <div class="col-7">
-              <span>
-                <?= !empty($detail_aer->va)
-                  ?  htmlspecialchars($detail_aer->va)
-                  : '<span class="text-muted">Belum diisi</span>' ?>
-              </span>
-            </div>
-          </div>
-
-
-          <!-- ID CARD -->
-          <div class="row mb-2">
-            <div class="col-5">
-              <strong>ID Card</strong><br>
-            </div>
-            <div class="col-7">
-              <span>
-                <?= !empty($detail_aer->idcard)
-                  ?  htmlspecialchars($detail_aer->idcard)
-                  : '<span class="text-muted">Belum diisi</span>' ?>
-              </span>
-            </div>
-          </div>
-
-
-          <!-- WEBSITE -->
-          <div class="row mb-2">
-            <div class="col-5">
-              <strong>Website</strong><br>
-            </div>
-            <div class="col-7">
-              <span>
-                <?= !empty($detail_aer->website)
-                  ?  htmlspecialchars($detail_aer->website)
-                  : '<span class="text-muted"></span>' ?>
-              </span>
-            </div>
-          </div>
-
-
 
           <!-- Accordion -->
-          <div class="accordion mt-5" id="accordionExample">
+          <div class="accordion" id="accordionExample">
+
+            <!-- EXPERIENCE -->
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#exp">
+                  <h5>Pengalaman Kerja/Profesional</h5>
+                </button>
+              </h2>
+              <div id="exp" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+
+                  <div class="card shadow-lg">
+                    <div class="card-body bg-light">
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Perusahaan</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->school) ? htmlspecialchars($detail_aer->school) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- Jabatan/Tugas -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Jabatan/Tugas</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->startdate . $detail_aer->enddate) ? htmlspecialchars($detail_aer->startdate . ' - ' . $detail_aer->enddate) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- Lokasi -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Lokasi</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->degree) ? htmlspecialchars($detail_aer->degree) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- Periode -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Periode</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->mayor) ? htmlspecialchars($detail_aer->mayor) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- Nama Aktifitas/Kegiatan/Proyek -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Nama Aktifitas/Kegiatan/Proyek</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->fieldofstudy) ? htmlspecialchars($detail_aer->fieldofstudy) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- Uraian Singkat Tugas dan Tanggung Jawab Profesional -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Uraian Singkat Tugas dan Tanggung Jawab Profesional</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->score) ? htmlspecialchars($detail_aer->score) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- GELAR -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Gelar</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->title) ? htmlspecialchars($detail_aer->title) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- Aktivitas dan kegiatan sosial -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Aktivitas dan kegiatan sosial</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->activities) ? htmlspecialchars($detail_aer->activities) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- Deskripsi -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold ">Deskripsi</div>
+                        <div class="col-md-8">
+                          <?= !empty($detail_aer->exp_description) ? htmlspecialchars($detail_aer->exp_description) : '<span class="text-muted"></span>' ?>
+                        </div>
+                      </div>
+
+                      <!-- Dokumen pendukung pendidikan/ijazah -->
+                      <div class="row mb-3">
+                        <div class="col-md-4 label fw-bold">Dokumen Pendukung</div>
+                        <div class="col-md-8">
+                          <?= '<a target="_blank" href="https://updmember.pii.or.id/assets/uploads/' . $detail_aer->attachment . '">' . $detail_aer->attachment . '</a>'; ?>
+
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+
+                </div>
+              </div>
+            </div>
+
+
 
             <!-- EDUCATION -->
             <div class="accordion-item">
               <h2 class="accordion-header">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#edu">
-                  <h4>Pendidikan</h4>
+                  <h5>Pendidikan</h5>
                 </button>
               </h2>
               <div id="edu" class="accordion-collapse collapse show">
@@ -393,7 +427,7 @@
                       <div class="row mb-3">
                         <div class="col-md-4 label fw-bold ">Deskripsi</div>
                         <div class="col-md-8">
-                          <?= !empty($detail_aer->description) ? htmlspecialchars($detail_aer->description) : '<span class="text-muted"></span>' ?>
+                          <?= !empty($detail_aer->edu_description) ? htmlspecialchars($detail_aer->edu_description) : '<span class="text-muted"></span>' ?>
                         </div>
                       </div>
 
