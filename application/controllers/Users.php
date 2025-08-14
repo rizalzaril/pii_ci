@@ -43,12 +43,38 @@ class Users extends CI_Controller
 
 	public function detail_aer($kta)
 	{
-		$row['detail_aer'] = $this->Users_model->get_detail_aer($kta);
+		// Ambil data dari model
+		$detail_aer = $this->Users_model->get_detail_aer($kta);
 
+		// Kalau objeknya sama sekali tidak ada
+		if (!$detail_aer) {
+			show_404(); // atau tampilkan pesan lain
+			return;
+		}
+
+		// Ganti semua property NULL jadi tanda '-'
+		foreach ($detail_aer as $key => $value) {
+			if (is_null($value) || $value === '') {
+				$detail_aer->$key = '-';
+			}
+		}
+
+		// Debug var_dump
+		echo '<pre>';
+		var_dump($detail_aer);
+		echo '</pre>';
+		exit;
+
+		// Kirim ke view
+		$data['detail_aer'] = $detail_aer;
 		$this->load->view('header');
-		$this->load->view('aer_details_view', $row);
+		$this->load->view('aer_details_view', $data);
 		$this->load->view('footer');
 	}
+
+
+
+
 
 	//get users with ajax
 	public function get_users()

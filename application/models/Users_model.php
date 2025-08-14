@@ -29,35 +29,48 @@ class Users_model extends CI_Model
 			->row();
 	}
 
-	/**
-	 * Ambil detail aer berdasarkan kta
-	 * @param string $kta
-	 * @return object|null
-	 */
+
 	public function get_detail_aer($kta)
 	{
-		$sql = "
-        SELECT aer.*, members.*, user_profiles.*, user_profiles.description AS profile_description , users.*, user_address.*, user_exp.*, user_edu.description AS edu_description, user_edu.*, user_exp.description AS exp_description
-        FROM aer
-        LEFT JOIN members 
-            ON aer.kta COLLATE utf8mb4_unicode_ci = members.no_kta COLLATE utf8mb4_unicode_ci
-        LEFT JOIN user_profiles 
-            ON members.person_id = user_profiles.user_id
-				LEFT JOIN users
-						ON user_profiles.user_id = users.id
-				LEFT JOIN user_address
-						ON users.id = user_address.user_id
-				LEFT JOIN user_exp
-						ON users.id = user_exp.user_id
-				LEFT JOIN user_edu
-						ON users.id = user_edu.user_id
-        WHERE aer.kta COLLATE utf8mb4_unicode_ci = ?
-        
-    ";
+		$kta = trim($kta); // hapus spasi jika ada
 
-		$query = $this->db->query($sql, array($kta));
-		return $query->row();
+		$sql = "
+					SELECT aer.*, 
+								 members.*, 
+								 user_profiles.*,  
+								 user_profiles.description AS profile_description, 
+								 users.*, 
+								 user_address.*, 
+								 user_exp.*, 
+								 user_edu.description AS edu_description, 
+								 user_edu.*, 
+								 user_exp.description AS exp_description
+					FROM aer
+					LEFT JOIN members 
+							ON aer.kta COLLATE utf8mb4_unicode_ci = members.no_kta COLLATE utf8mb4_unicode_ci
+					LEFT JOIN user_profiles 
+							ON members.person_id = user_profiles.user_id
+					LEFT JOIN users
+							ON user_profiles.user_id = users.id
+					LEFT JOIN user_address
+							ON users.id = user_address.user_id
+					LEFT JOIN user_exp
+							ON users.id = user_exp.user_id
+					LEFT JOIN user_edu
+							ON users.id = user_edu.user_id
+					WHERE aer.kta COLLATE utf8mb4_unicode_ci = ?
+			";
+
+		$query = $this->db->query($sql, [$kta]);
+
+		// Debug query jika perlu
+		// log_message('debug', 'Last Query: ' . $this->db->last_query());
+
+		// Pastikan hasilnya object atau null
+		return ($query->num_rows() > 0) ? $query->row() : null;
 	}
+
+
 
 
 	// public function get_users($start, $length, $search = null)
