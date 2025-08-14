@@ -193,6 +193,14 @@ class Import extends CI_Controller
 	///////////////////////////////////IMPORT SET NEW PASSWORD\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 	public function import_update_password()
 	{
+		// Ambil password dari form admin
+		$passwordNew = $this->input->post('password', true);
+		if (empty($passwordNew)) {
+			$this->session->set_flashdata('error', 'Password baru wajib diisi.');
+			redirect('/users');
+			return;
+		}
+
 		// Konfigurasi upload
 		$config = [
 			'upload_path'   => './uploads/excel_import/',
@@ -223,8 +231,7 @@ class Import extends CI_Controller
 				if ($rowIndex === 1) continue; // Skip header
 				if (empty(array_filter($row))) continue; // Skip baris kosong
 
-				$email = trim($row['A']); // Kolom A = email
-				$passwordNew = !empty($row['B']) ? trim($row['B']) : '123'; // Kolom B = password baru (default '123')
+				$email = trim($row['D']); // Kolom A = email
 
 				if (empty($email)) continue;
 
@@ -232,7 +239,7 @@ class Import extends CI_Controller
 				$existingUser = $this->db->where('email', $email)->get('users')->row_array();
 
 				if ($existingUser) {
-					// Update password
+					// Update password ke yang diinput admin
 					$this->db->where('id', $existingUser['id'])
 						->update('users', [
 							'password' => password_hash($passwordNew, PASSWORD_DEFAULT)
@@ -260,7 +267,7 @@ class Import extends CI_Controller
 
 			$this->session->set_flashdata('success_import', $msg);
 		} catch (\Exception $e) {
-			$this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
+			$this->session->set_flashdata('error_import', 'Gagal memproses file: ' . $e->getMessage());
 		}
 
 		redirect('/users');

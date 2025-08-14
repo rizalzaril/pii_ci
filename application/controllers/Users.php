@@ -119,11 +119,11 @@ class Users extends CI_Controller
 			// Hapus dari tabel dummy_users
 			$this->db->where_in('id', $ids)->delete('users');
 
-			// Hapus dari tabel dummy_user_profiles
-			// $this->db->where_in('user_id', $ids)->delete('user_profiles');
+			//Hapus dari tabel dummy_user_profiles
+			$this->db->where_in('user_id', $ids)->delete('user_profiles');
 
-			// Hapus dari tabel dummy_user_address
-			// $this->db->where_in('user_id', $ids)->delete('user_address');
+			//Hapus dari tabel dummy_user_address
+			$this->db->where_in('user_id', $ids)->delete('user_address');
 		}
 
 		echo json_encode(['Status' => 'Delete selected success!']);
@@ -133,15 +133,15 @@ class Users extends CI_Controller
 	public function delete_all_dummy_users()
 	{
 		// Kosongkan tabel dummy_users
-		$data = $this->db->empty_table('dummy_users');
-		var_dump($data);
-		exit;
+		// $data = $this->db->empty_table('users');
+		// var_dump($data);
+		// exit;
 
 		// Kosongkan tabel dummy_user_profiles
-		$this->db->empty_table('dummy_user_profiles');
+		// $this->db->empty_table('user_profiles');
 
 		// Kosongkan tabel dummy_user_address
-		$this->db->empty_table('dummy_user_address');
+		// $this->db->empty_table('user_address');
 
 		echo json_encode(['Status' => 'Delete success!']);
 	}

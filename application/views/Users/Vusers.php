@@ -20,12 +20,12 @@
 
 	<!-- MODAL IMPORT DARI EXCEL/CSV -->
 
-	<!-- Button trigger modal -->
+	<!-- Button trigger modal Import kolektif -->
 	<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
 		<i class="fas fa-file-excel"></i> Import XLSX/CSV
 	</button>
 
-	<!-- Modal -->
+	<!-- Modal Import data kolektif -->
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog ">
 			<div class="modal-content">
@@ -76,6 +76,62 @@
 					</script>
 
 				</div>
+				<div class="modal-footer">
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Button trigger modal Import set new password -->
+	<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#setpw">
+		<i class="fas fa-file-excel"></i> Import Set New Password
+	</button>
+
+	<!-- Modal Import set new password -->
+	<div class="modal fade" id="setpw" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog ">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Import XLSX/CSV</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<?= form_open_multipart('import/import_update_password/', ['id' => 'formImport']) ?>
+
+					<!-- Form file upload XLSX -->
+					<div class="mb-3">
+						<label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label>
+						<input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required>
+					</div>
+
+					<!-- Input Password -->
+					<div class="mb-3">
+						<label for="passwordImport" class="form-label fw-bold">Password*</label>
+						<input type="text" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required>
+					</div>
+
+					<!-- Tombol -->
+					<button type="submit" class="btn btn-success">Import</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+					<?= form_close() ?>
+
+					<!-- Overlay Loading -->
+					<div id="loadingOverlay"
+						style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+        background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white; padding-top:20%;">
+						<div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;"></div>
+						<p class="mt-3 fs-5">Sedang mengimport data, mohon tunggu...</p>
+					</div>
+
+					<script>
+						document.getElementById('formImport').addEventListener('submit', function() {
+							document.getElementById('loadingOverlay').style.display = 'block';
+						});
+					</script>
+				</div>
+
 				<div class="modal-footer">
 
 				</div>
