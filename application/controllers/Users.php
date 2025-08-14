@@ -60,10 +60,10 @@ class Users extends CI_Controller
 		}
 
 		// Debug var_dump
-		echo '<pre>';
-		var_dump($detail_aer);
-		echo '</pre>';
-		exit;
+		// echo '<pre>';
+		// var_dump($detail_aer);
+		// echo '</pre>';
+		// exit;
 
 		// Kirim ke view
 		$data['detail_aer'] = $detail_aer;
