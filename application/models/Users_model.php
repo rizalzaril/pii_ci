@@ -37,7 +37,7 @@ class Users_model extends CI_Model
 	public function get_detail_aer($kta)
 	{
 		$sql = "
-        SELECT aer.*, members.*, user_profiles.*, users.*
+        SELECT aer.*, members.*, user_profiles.*, users.*, user_address.*, user_exp.*, user_edu.*
         FROM aer
         LEFT JOIN members 
             ON aer.kta COLLATE utf8mb4_unicode_ci = members.no_kta COLLATE utf8mb4_unicode_ci
@@ -45,17 +45,19 @@ class Users_model extends CI_Model
             ON members.person_id = user_profiles.user_id
 				LEFT JOIN users
 						ON user_profiles.user_id = users.id
+				LEFT JOIN user_address
+						ON users.id = user_address.user_id
+				LEFT JOIN user_exp
+						ON users.id = user_exp.user_id
+				LEFT JOIN user_edu
+						ON users.id = user_edu.user_id
         WHERE aer.kta COLLATE utf8mb4_unicode_ci = ?
-        LIMIT 1
+        
     ";
 
 		$query = $this->db->query($sql, array($kta));
 		return $query->row();
 	}
-
-
-
-
 
 
 	// public function get_users($start, $length, $search = null)
