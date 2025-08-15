@@ -35,40 +35,52 @@ class Users_model extends CI_Model
 		$kta = trim($kta); // hapus spasi jika ada
 
 		$sql = "
-					SELECT aer.*, 
-								 members.*, 
-								 user_profiles.*,  
-								 user_profiles.description AS profile_description, 
-								 users.*, 
-								 user_address.*, 
-								 user_exp.*, 
-								 user_edu.description AS edu_description, 
-								 user_edu.*, 
-								 user_exp.description AS exp_description
-					FROM aer
-					LEFT JOIN members 
-							ON aer.kta COLLATE utf8mb4_unicode_ci = members.no_kta COLLATE utf8mb4_unicode_ci
-					LEFT JOIN user_profiles 
-							ON members.person_id = user_profiles.user_id
-					LEFT JOIN users
-							ON user_profiles.user_id = users.id
-					LEFT JOIN user_address
-							ON users.id = user_address.user_id
-					LEFT JOIN user_exp
-							ON users.id = user_exp.user_id
-					LEFT JOIN user_edu
-							ON users.id = user_edu.user_id
-					WHERE aer.kta COLLATE utf8mb4_unicode_ci = ?
-			";
+        SELECT 
+            aer.*, 
+            members.*, 
+            user_profiles.*,  
+            user_profiles.description AS profile_description, 
+            users.*, 
+            user_address.*, 
+            user_exp.*, 
+            user_edu.description AS edu_description, 
+            user_edu.*, 
+            user_exp.description AS exp_description
+        FROM aer
+        LEFT JOIN members 
+            ON aer.kta COLLATE utf8mb4_unicode_ci = members.no_kta COLLATE utf8mb4_unicode_ci
+        LEFT JOIN user_profiles 
+            ON members.person_id AND members.no_kta = user_profiles.user_id
+				LEFT JOIN users
+            ON user_profiles.user_id = users.id
+        LEFT JOIN user_address
+            ON users.id = user_address.user_id
+        LEFT JOIN user_exp
+            ON users.id = user_exp.user_id
+        LEFT JOIN user_edu
+            ON users.id = user_edu.user_id
+			
+        WHERE aer.kta COLLATE utf8mb4_unicode_ci = ?
+    ";
 
 		$query = $this->db->query($sql, [$kta]);
 
-		// Debug query jika perlu
-		// log_message('debug', 'Last Query: ' . $this->db->last_query());
+		if ($query->num_rows() > 0) {
+			$row = $query->result();
 
-		// Pastikan hasilnya object atau null
-		return ($query->num_rows() > 0) ? $query->row() : null;
+			// Ganti semua value NULL atau string kosong jadi '-'
+			foreach ($row as $key => $value) {
+				if (is_null($value) || $value === '') {
+					$row->$key = '-';
+				}
+			}
+
+			return $row;
+		}
+
+		return null; // jika tidak ditemukan
 	}
+
 
 
 
@@ -92,22 +104,31 @@ class Users_model extends CI_Model
 	//   return $this->db->get()->result();
 	// }
 
-	public function get_users($start, $length, $search = null, $order_col = null, $order_dir = null, $is_duplicate = null)
+	public function get_users($start, $length, $search = null, $order_col = null, $order_dir = null, $is_duplicate = null, $start_date = null, $end_date = null)
 	{
 		$this->db->select('*');
 		$this->db->from('users');
 
-		// 🔹 Filter duplicate berdasarkan tabel users
+		// 🔹 Filter duplicate
 		if ($is_duplicate !== null && $is_duplicate !== '') {
 			if ($is_duplicate == 1) {
-				// Duplicate Only → email sudah ada di users
 				$this->db->where("email IN (SELECT email FROM users)", NULL, FALSE);
 			} elseif ($is_duplicate == 0) {
-				// Non Duplicate Only → email belum ada di users
 				$this->db->where("email NOT IN (SELECT email FROM users)", NULL, FALSE);
 			}
 		}
 
+		// 🔹 Filter date
+		if (!empty($start_date) && !empty($end_date)) {
+			$this->db->where('DATE(created) >=', $start_date);
+			$this->db->where('DATE(created) <=', $end_date);
+		} elseif (!empty($start_date)) {
+			$this->db->where('DATE(created) >=', $start_date);
+		} elseif (!empty($end_date)) {
+			$this->db->where('DATE(created) <=', $end_date);
+		}
+
+		// 🔹 Search
 		if (!empty($search)) {
 			$this->db->group_start();
 			$this->db->like('username', $search);
@@ -115,20 +136,24 @@ class Users_model extends CI_Model
 			$this->db->group_end();
 		}
 
+		// 🔹 Sorting
 		if ($order_col && $order_dir) {
 			$this->db->order_by($order_col, $order_dir);
 		} else {
 			$this->db->order_by('id', 'DESC');
 		}
 
+		// 🔹 Limit
 		$this->db->limit($length, $start);
+
 		return $this->db->get()->result();
 	}
 
-	public function count_filtered($search = null, $is_duplicate = null)
+	public function count_filtered($search = null, $is_duplicate = null, $start_date = null, $end_date = null)
 	{
 		$this->db->from('users');
 
+		// 🔹 Filter duplicate
 		if ($is_duplicate !== null && $is_duplicate !== '') {
 			if ($is_duplicate == 1) {
 				$this->db->where("email IN (SELECT email FROM users)", NULL, FALSE);
@@ -137,6 +162,17 @@ class Users_model extends CI_Model
 			}
 		}
 
+		// 🔹 Filter date
+		if (!empty($start_date) && !empty($end_date)) {
+			$this->db->where('DATE(created) >=', $start_date);
+			$this->db->where('DATE(created) <=', $end_date);
+		} elseif (!empty($start_date)) {
+			$this->db->where('DATE(created) >=', $start_date);
+		} elseif (!empty($end_date)) {
+			$this->db->where('DATE(created) <=', $end_date);
+		}
+
+		// 🔹 Search
 		if (!empty($search)) {
 			$this->db->group_start();
 			$this->db->like('username', $search);
@@ -146,8 +182,6 @@ class Users_model extends CI_Model
 
 		return $this->db->count_all_results();
 	}
-
-
 
 	public function count_all()
 	{

@@ -19,126 +19,55 @@
 
 
 	<!-- MODAL IMPORT DARI EXCEL/CSV -->
-
-	<!-- Button trigger modal Import kolektif -->
-	<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
-		<i class="fas fa-file-excel"></i> Import XLSX/CSV
-	</button>
-
-	<!-- Modal Import data kolektif -->
+	<!-- ... (modal import kolektif dan modal set password tetap sama seperti kode asli kamu) ... -->
+	<!-- MODAL IMPORT DARI EXCEL/CSV --> <!-- Button trigger modal Import kolektif --> <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"> <i class="fas fa-file-excel"></i> Import XLSX/CSV </button> <!-- Modal Import data kolektif -->
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog ">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Import XLSX/CSV</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<h5 class="modal-title" id="exampleModalLabel">Import XLSX/CSV</h5> <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body">
-					<?= form_open_multipart('import/import_proccess/', ['id' => 'formImport']) ?>
-
-					<!-- Form file upload XLSX -->
-					<div class="mb-3">
-						<label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label>
-						<input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required>
-					</div>
-
-					<div class="mb-3">
-						<label for="kodkel" class="form-label fw-bold">Kode Kelompok*</label>
-						<select name="kodkel" id="kodkel" class="form-control form-select shadow-sm">
-							<?php foreach ($list_kelompok as $kodkel) : ?>
-								<option value="<?= $kodkel->id ?>"><?= $kodkel->id ?>. <?= $kodkel->name ?></option>
-							<?php endforeach; ?>
-						</select>
-					</div>
-
-					<div class="mb-3">
-						<label for="passwordImport" class="form-label fw-bold">Password*</label>
-						<input type="text" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required>
-					</div>
-
-					<button type="submit" class="btn btn-success">Import</button>
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-					<?= form_close() ?>
-
-					<!-- Overlay Loading -->
-					<div id="loadingOverlay"
-						style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white; padding-top:20%;">
+				<div class="modal-body"> <?= form_open_multipart('import/import_proccess/', ['id' => 'formImport']) ?> <!-- Form file upload XLSX -->
+					<div class="mb-3"> <label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label> <input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required> </div>
+					<div class="mb-3"> <label for="kodkel" class="form-label fw-bold">Kode Kelompok*</label> <select name="kodkel" id="kodkel" class="form-control form-select shadow-sm"> <?php foreach ($list_kelompok as $kodkel) : ?> <option value="<?= $kodkel->id ?>"><?= $kodkel->id ?>. <?= $kodkel->name ?></option> <?php endforeach; ?> </select> </div>
+					<div class="mb-3"> <label for="passwordImport" class="form-label fw-bold">Password*</label> <input type="text" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required> </div> <button type="submit" class="btn btn-success">Import</button> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <?= form_close() ?> <!-- Overlay Loading -->
+					<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white; padding-top:20%;">
 						<div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;"></div>
 						<p class="mt-3 fs-5">Sedang mengimport data, mohon tunggu...</p>
 					</div>
-
 					<script>
 						document.getElementById('formImport').addEventListener('submit', function() {
 							document.getElementById('loadingOverlay').style.display = 'block';
 						});
 					</script>
-
 				</div>
-				<div class="modal-footer">
-
-				</div>
+				<div class="modal-footer"> </div>
 			</div>
 		</div>
-	</div>
-
-	<!-- Button trigger modal Import set new password -->
-	<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#setpw">
-		<i class="fas fa-file-excel"></i> Import Set New Password
-	</button>
-
-	<!-- Modal Import set new password -->
+	</div> <!-- Button trigger modal Import set new password --> <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#setpw"> <i class="fas fa-file-excel"></i> Import Set New Password </button> <!-- Modal Import set new password -->
 	<div class="modal fade" id="setpw" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog ">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Import XLSX/CSV</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<h5 class="modal-title" id="exampleModalLabel">Import XLSX/CSV</h5> <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body">
-					<?= form_open_multipart('import/import_update_password/', ['id' => 'formImport']) ?>
-
-					<!-- Form file upload XLSX -->
-					<div class="mb-3">
-						<label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label>
-						<input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required>
-					</div>
-
-					<!-- Input Password -->
-					<div class="mb-3">
-						<label for="passwordImport" class="form-label fw-bold">Password*</label>
-						<input type="text" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required>
-					</div>
-
-					<!-- Tombol -->
-					<button type="submit" class="btn btn-success">Import</button>
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-					<?= form_close() ?>
-
-					<!-- Overlay Loading -->
-					<div id="loadingOverlay"
-						style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-        background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white; padding-top:20%;">
+				<div class="modal-body"> <?= form_open_multipart('import/import_update_password/', ['id' => 'formImport']) ?> <!-- Form file upload XLSX -->
+					<div class="mb-3"> <label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label> <input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required> </div> <!-- Input Password -->
+					<div class="mb-3"> <label for="passwordImport" class="form-label fw-bold">Password*</label> <input type="text" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required> </div> <!-- Tombol --> <button type="submit" class="btn btn-success">Import</button> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <?= form_close() ?> <!-- Overlay Loading -->
+					<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white; padding-top:20%;">
 						<div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;"></div>
 						<p class="mt-3 fs-5">Sedang mengimport data, mohon tunggu...</p>
 					</div>
-
 					<script>
 						document.getElementById('formImport').addEventListener('submit', function() {
 							document.getElementById('loadingOverlay').style.display = 'block';
 						});
 					</script>
 				</div>
-
-				<div class="modal-footer">
-
-				</div>
+				<div class="modal-footer"> </div>
 			</div>
 		</div>
 	</div>
-
 
 	<h3 class="d-flex justify-content-center">Dummy Users</h3>
 
@@ -164,6 +93,17 @@
 		</select>
 	</div>
 
+	<!-- ✅ Filter by Date (Tambahan) -->
+	<div class="mb-3">
+		<label>Filter by Date:</label>
+		<input type="date" id="start_date" class="form-control d-inline-block" style="width:auto; display:inline-block;">
+		<span> s/d </span>
+		<input type="date" id="end_date" class="form-control d-inline-block" style="width:auto; display:inline-block;">
+		<button id="btn_filter_date" class="btn btn-primary btn-sm">Filter</button>
+		<button id="btn_reset_date" class="btn btn-secondary btn-sm">Reset</button>
+	</div>
+	<!-- ✅ END Filter by Date -->
+
 	<!-- Delete form -->
 	<div class="mb-3">
 		<button id="btn_delete_selected" class="btn btn-danger btn-sm">
@@ -173,7 +113,6 @@
 			<i class="fa fa-trash"></i> Delete All
 		</button>
 	</div>
-
 
 	<table id="table_users" class="table table-sm table-striped">
 		<thead>
@@ -200,7 +139,6 @@
 <?php if ($this->session->flashdata('success_delete') || $this->session->flashdata('success_update')): ?>
 	<script>
 		//alert delete
-
 		Swal.fire({
 			icon: 'success',
 			title: 'Berhasil!',
@@ -208,7 +146,6 @@
 			showConfirmButton: false,
 			timer: 2000
 		});
-
 
 		Swal.fire({
 			icon: 'success',
@@ -256,7 +193,6 @@
 </script>
 
 
-
 <!-- Inisialisasi DataTable table users -->
 <script>
 	$(document).ready(function() {
@@ -274,11 +210,26 @@
 						d.order_dir = parts[1];
 					}
 					d.is_duplicate = $('#filter_duplicate').val();
+
+					// ✅ Tambahan: Kirim filter date ke server
+					d.start_date = $('#start_date').val();
+					d.end_date = $('#end_date').val();
 				}
 			}
 		});
 
 		$('#sort_by, #filter_duplicate').on('change', function() {
+			table.ajax.reload();
+		});
+
+		// ✅ Event Filter Date
+		$('#btn_filter_date').on('click', function() {
+			table.ajax.reload();
+		});
+
+		$('#btn_reset_date').on('click', function() {
+			$('#start_date').val('');
+			$('#end_date').val('');
 			table.ajax.reload();
 		});
 

@@ -46,11 +46,10 @@ class Users extends CI_Controller
 		// Ambil data dari model
 		$detail_aer = $this->Users_model->get_detail_aer($kta);
 
-		// Kalau objeknya sama sekali tidak ada
-		if (!$detail_aer) {
-			show_404(); // atau tampilkan pesan lain
-			return;
-		}
+		echo '<pre>';
+		var_dump($detail_aer);
+		echo '</pre>';
+		exit;
 
 		// Ganti semua property NULL jadi tanda '-'
 		foreach ($detail_aer as $key => $value) {
@@ -58,12 +57,6 @@ class Users extends CI_Controller
 				$detail_aer->$key = '-';
 			}
 		}
-
-		// Debug var_dump
-		// echo '<pre>';
-		// var_dump($detail_aer);
-		// echo '</pre>';
-		// exit;
 
 		// Kirim ke view
 		$data['detail_aer'] = $detail_aer;
@@ -77,6 +70,77 @@ class Users extends CI_Controller
 
 
 	//get users with ajax
+	//get users with ajax
+	// public function get_users()
+	// {
+	// 	$draw         = intval($this->input->get("draw"));
+	// 	$start        = intval($this->input->get("start"));
+	// 	$length       = intval($this->input->get("length"));
+	// 	$search       = $this->input->get("search")['value'];
+	// 	$order_col    = $this->input->get("order_by");
+	// 	$order_dir    = $this->input->get("order_dir");
+	// 	$is_duplicate = $this->input->get("is_duplicate"); // tambahan filter
+
+	// 	// Ambil data dari model dengan filter duplicate
+	// 	$users    = $this->Users_model->get_users($start, $length, $search, $order_col, $order_dir, $is_duplicate);
+	// 	$total    = $this->Users_model->count_all();
+	// 	$filtered = $this->Users_model->count_filtered($search, $is_duplicate);
+
+	// 	$data = [];
+	// 	$no = $start + 1;
+
+	// 	foreach ($users as $user) {
+	// 		$existsInUsers = $this->db
+	// 			->get_where('users', ['email' => $user->email])
+	// 			->num_rows() > 0;
+
+	// 		$emailDisplay = $existsInUsers
+	// 			? '<span class="text text-danger fw-bold">' . $user->email . '</span>'
+	// 			: $user->email;
+
+	// 		$duplicateBadge = $existsInUsers
+	// 			? '<span class="badge bg-danger">Cannot Import <i class="fa fa-times"></i></span>'
+	// 			: '<span class="badge bg-success">Ready to Import <i class="fa fa-check"></i></span>';
+
+	// 		$actionButtons = '
+	//           <a href="' . base_url('users/get_user_detail/' . $user->id) . '" class="btn btn-sm btn-dark">
+	//               <i class="fa fa-eye"></i>
+	//           </a>
+	//           <a href="' . base_url('users/edit/' . $user->id) . '" class="btn btn-sm btn-warning">
+	//               <i class="fa fa-edit"></i>
+	//           </a>
+	//       ';
+
+	// 		// ✅ Jika filter duplicate diaktifkan, tampilkan hanya yang sesuai
+	// 		if ($is_duplicate !== null && $is_duplicate !== '') {
+	// 			if ($is_duplicate == '1' && !$existsInUsers) {
+	// 				continue; // hanya duplicate yang ditampilkan
+	// 			}
+	// 			if ($is_duplicate == '0' && $existsInUsers) {
+	// 				continue; // hanya yang tidak duplicate yang ditampilkan
+	// 			}
+	// 		}
+
+	// 		$data[] = [
+	// 			'<input type="checkbox" class="row_checkbox" value="' . $user->id . '">',
+	// 			$no++,
+	// 			$user->id,
+	// 			$user->username,
+	// 			$emailDisplay,
+	// 			$duplicateBadge,
+	// 			$user->created,
+	// 			$actionButtons
+	// 		];
+	// 	}
+
+	// 	echo json_encode([
+	// 		"draw" => $draw,
+	// 		"recordsTotal" => $total,
+	// 		"recordsFiltered" => $filtered,
+	// 		"data" => $data
+	// 	]);
+	// }
+
 	public function get_users()
 	{
 		$draw         = intval($this->input->get("draw"));
@@ -87,9 +151,14 @@ class Users extends CI_Controller
 		$order_dir    = $this->input->get("order_dir");
 		$is_duplicate = $this->input->get("is_duplicate");
 
-		$users    = $this->Users_model->get_users($start, $length, $search, $order_col, $order_dir, $is_duplicate);
+		// ✅ Ambil filter date dari request
+		$start_date   = $this->input->get("start_date");
+		$end_date     = $this->input->get("end_date");
+
+		// Ambil data dari model dengan filter duplicate + date
+		$users    = $this->Users_model->get_users($start, $length, $search, $order_col, $order_dir, $is_duplicate, $start_date, $end_date);
 		$total    = $this->Users_model->count_all();
-		$filtered = $this->Users_model->count_filtered($search, $is_duplicate);
+		$filtered = $this->Users_model->count_filtered($search, $is_duplicate, $start_date, $end_date);
 
 		$data = [];
 		$no = $start + 1;
@@ -116,6 +185,15 @@ class Users extends CI_Controller
             </a>
         ';
 
+			if ($is_duplicate !== null && $is_duplicate !== '') {
+				if ($is_duplicate == '1' && !$existsInUsers) {
+					continue;
+				}
+				if ($is_duplicate == '0' && $existsInUsers) {
+					continue;
+				}
+			}
+
 			$data[] = [
 				'<input type="checkbox" class="row_checkbox" value="' . $user->id . '">',
 				$no++,
@@ -135,6 +213,8 @@ class Users extends CI_Controller
 			"data" => $data
 		]);
 	}
+
+
 
 
 	public function delete_selected_dummy_users()
