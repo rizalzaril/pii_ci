@@ -1,4 +1,4 @@
-<div class="container mt-5">
+<div class="container mt-3">
 
 	<?php if ($this->session->flashdata('success_update') || $this->session->flashdata('success_delete') || $this->session->flashdata('success_import')) : ?>
 		<div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -15,12 +15,14 @@
 		</div>
 	<?php endif; ?>
 
+	<h3 class="text-center"><i class="fa-solid fa-user"></i> List User</h3>
+	<hr>
 	<a href="<?= base_url('/dashboard/add_data') ?>" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add data </a>
 
+	<!-- Button trigger modal Import kolektif ITS -->
+	<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"> <i class="fas fa-file-excel"></i> Import XLSX/CSV </button>
 
-	<!-- MODAL IMPORT DARI EXCEL/CSV -->
-	<!-- ... (modal import kolektif dan modal set password tetap sama seperti kode asli kamu) ... -->
-	<!-- MODAL IMPORT DARI EXCEL/CSV --> <!-- Button trigger modal Import kolektif --> <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"> <i class="fas fa-file-excel"></i> Import XLSX/CSV </button> <!-- Modal Import data kolektif -->
+	<!-- Modal Import data kolektif ITS -->
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog ">
 			<div class="modal-content">
@@ -44,7 +46,15 @@
 				<div class="modal-footer"> </div>
 			</div>
 		</div>
-	</div> <!-- Button trigger modal Import set new password --> <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#setpw"> <i class="fas fa-file-excel"></i> Import Set New Password </button> <!-- Modal Import set new password -->
+
+	</div>
+
+
+	<!-- IMPORT SET NEW PASSWORD -->
+	<!-- Button trigger modal Import set new password -->
+	<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#setpw"> <i class="fas fa-file-excel"></i> Import Set New Password </button>
+
+	<!-- Modal Import set new password -->
 	<div class="modal fade" id="setpw" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog ">
 			<div class="modal-content">
@@ -69,40 +79,80 @@
 		</div>
 	</div>
 
-	<h3 class="d-flex justify-content-center">Dummy Users</h3>
 
-	<div class="mb-3">
-		<label>Sort by key:</label>
-		<select id="sort_by" class="form-select" style="width:auto; display:inline-block;">
-			<option value="id|ASC">PRIMARY (ASC)</option>
-			<option value="id|DESC" selected>PRIMARY (DESC)</option>
-			<option value="username|ASC">username (ASC)</option>
-			<option value="username|DESC">username (DESC)</option>
-			<option value="email|ASC">email (ASC)</option>
-			<option value="email|DESC">email (DESC)</option>
-			<option value="">Tidak ada</option>
-		</select>
+	<!-- Button trigger modal Import kolektif UGM -->
+	<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#importUgm"> <i class="fas fa-file-excel"></i> Import UGM XLSX/CSV </button>
+
+	<!-- Modal Import data kolektif UGM -->
+	<div class="modal fade" id="importUgm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog ">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Import XLSX/CSV</h5> <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body"> <?= form_open_multipart('import/import_proccess/', ['id' => 'formImport']) ?>
+					<!-- Form file upload XLSX -->
+					<div class="mb-3"> <label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label> <input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required> </div>
+
+					<div class="mb-3"> <label for="kodkel" class="form-label fw-bold">Kode Kelompok*</label> <select name="kodkel" id="kodkel" class="form-control form-select shadow-sm"> <?php foreach ($list_kelompok as $kodkel) : ?> <option value="<?= $kodkel->id ?>"><?= $kodkel->id ?>. <?= $kodkel->name ?></option> <?php endforeach; ?> </select> </div>
+
+					<div class="mb-3"> <label for="passwordImport" class="form-label fw-bold">Password*</label> <input type="text" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required> </div> <button type="submit" class="btn btn-success">Import</button> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <?= form_close() ?> <!-- Overlay Loading -->
+					<div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white; padding-top:20%;">
+						<div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;"></div>
+						<p class="mt-3 fs-5">Sedang mengimport data, mohon tunggu...</p>
+					</div>
+					<script>
+						document.getElementById('formImport').addEventListener('submit', function() {
+							document.getElementById('loadingOverlay').style.display = 'block';
+						});
+					</script>
+				</div>
+				<div class="modal-footer"> </div>
+			</div>
+		</div>
+
 	</div>
 
-	<div class="mb-3">
-		<label>Filter by Duplicate:</label>
-		<select id="filter_duplicate" class="form-select" style="width:auto; display:inline-block;">
-			<option value="">All</option>
-			<option value="1">Duplicate Only</option>
-			<option value="0">Non Duplicate Only</option>
-		</select>
+
+
+	<!-- FILTER / SORT  -->
+
+	<div class="d-flex justify-content-between mt-3">
+		<div class="mb-3">
+			<label>Sort by key:</label>
+			<select id="sort_by" class="form-select" style="width:auto; display:inline-block;">
+				<option value="id|ASC">PRIMARY (ASC)</option>
+				<option value="id|DESC" selected>PRIMARY (DESC)</option>
+				<option value="username|ASC">username (ASC)</option>
+				<option value="username|DESC">username (DESC)</option>
+				<option value="email|ASC">email (ASC)</option>
+				<option value="email|DESC">email (DESC)</option>
+				<option value="">Tidak ada</option>
+			</select>
+		</div>
+
+		<div class="mb-3">
+			<label>Filter by Duplicate:</label>
+			<select id="filter_duplicate" class="form-select" style="width:auto; display:inline-block;">
+				<option value="">All</option>
+				<option value="1">Duplicate Only</option>
+				<option value="0">Non Duplicate Only</option>
+			</select>
+		</div>
+
+		<!-- ✅ Filter by Date (Tambahan) -->
+		<div class="mb-3">
+			<label>Filter by Date:</label>
+			<input type="date" id="start_date" class="form-control d-inline-block" style="width:auto; display:inline-block;">
+			<span> s/d </span>
+			<input type="date" id="end_date" class="form-control d-inline-block" style="width:auto; display:inline-block;">
+			<button id="btn_filter_date" class="btn btn-primary btn-sm">Filter</button>
+			<button id="btn_reset_date" class="btn btn-secondary btn-sm">Reset</button>
+		</div>
+		<!-- ✅ END Filter by Date -->
 	</div>
 
-	<!-- ✅ Filter by Date (Tambahan) -->
-	<div class="mb-3">
-		<label>Filter by Date:</label>
-		<input type="date" id="start_date" class="form-control d-inline-block" style="width:auto; display:inline-block;">
-		<span> s/d </span>
-		<input type="date" id="end_date" class="form-control d-inline-block" style="width:auto; display:inline-block;">
-		<button id="btn_filter_date" class="btn btn-primary btn-sm">Filter</button>
-		<button id="btn_reset_date" class="btn btn-secondary btn-sm">Reset</button>
-	</div>
-	<!-- ✅ END Filter by Date -->
+
 
 	<!-- Delete form -->
 	<div class="mb-3">
@@ -113,6 +163,10 @@
 			<i class="fa fa-trash"></i> Delete All
 		</button>
 	</div>
+
+	<!-- END FILTER / SORT  -->
+
+
 
 	<table id="table_users" class="table table-sm table-striped">
 		<thead>
