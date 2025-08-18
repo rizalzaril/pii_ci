@@ -30,59 +30,80 @@ class Users_model extends CI_Model
 	}
 
 
+	// public function get_detail_aer($kta)
+	// {
+	// 	$this->db->select('*');
+	// 	$this->db->from('v_detail_aer_coba_6');
+	// 	$this->db->where('no_kta', $kta);
+	// 	return $this->db->get()->result();
+	// }
+
 	public function get_detail_aer($kta)
 	{
-		$kta = trim($kta); // hapus spasi jika ada
+		// --- Ambil data utama (tanpa address, karena address bisa banyak) ---
+		$this->db->select('
+			v_aer_members_coba.*, 
+			user_profiles.*, 
+			users.*
+		');
+		$this->db->from('v_aer_members_coba');
+		$this->db->join('user_profiles', 'user_profiles.user_id = v_aer_members_coba.person_id', 'left');
+		$this->db->join('users', 'users.id = v_aer_members_coba.person_id', 'left');
+		$this->db->where('v_aer_members_coba.kta', $kta);
+		$detail = $this->db->get()->row_array(); // ambil satu baris data utama
 
-		$sql = "
-        SELECT 
-            aer.*, 
-            members.*, 
-            user_profiles.*,  
-            user_profiles.description AS profile_description, 
-            users.*, 
-            user_address.*, 
-            user_exp.*, 
-            user_edu.description AS edu_description, 
-            user_edu.*, 
-            user_exp.description AS exp_description
-        FROM aer
-        LEFT JOIN members 
-            ON aer.kta COLLATE utf8mb4_unicode_ci = members.no_kta COLLATE utf8mb4_unicode_ci
-        LEFT JOIN user_profiles 
-            ON members.person_id AND members.no_kta = user_profiles.user_id
-				LEFT JOIN users
-            ON user_profiles.user_id = users.id
-        LEFT JOIN user_address
-            ON users.id = user_address.user_id
-        LEFT JOIN user_exp
-            ON users.id = user_exp.user_id
-        LEFT JOIN user_edu
-            ON users.id = user_edu.user_id
-			
-        WHERE aer.kta COLLATE utf8mb4_unicode_ci = ?
-    ";
+		if ($detail) {
+			$person_id = $detail['person_id'];
 
-		$query = $this->db->query($sql, [$kta]);
+			// --- Address (bisa banyak) ---
+			$detail['addresses'] = $this->db
+				->where('user_id', $person_id)
+				->get('user_address')
+				->result_array();
 
-		if ($query->num_rows() > 0) {
-			$row = $query->result();
+			// --- Experiences ---
+			$detail['experiences'] = $this->db
+				->where('user_id', $person_id)
+				->get('user_exp')
+				->result_array();
 
-			// Ganti semua value NULL atau string kosong jadi '-'
-			foreach ($row as $key => $value) {
-				if (is_null($value) || $value === '') {
-					$row->$key = '-';
-				}
-			}
+			// --- Educations ---
+			$detail['educations'] = $this->db
+				->where('user_id', $person_id)
+				->get('user_edu')
+				->result_array();
 
-			return $row;
+			// --- Certifications ---
+			$detail['certifications'] = $this->db
+				->where('user_id', $person_id)
+				->get('user_cert')
+				->result_array();
 		}
 
-		return null; // jika tidak ditemukan
+		return $detail;
 	}
 
 
 
+
+
+
+	public function msrwhere($table, $com, $field, $sb)
+	{
+		$this->db->order_by($field, $sb);
+		return $this->db->get_where($table, $com);
+	}
+
+
+	public function get_aer_by_kta($kta)
+	{
+		$this->db->select('*');
+		$this->db->from('aer');
+		$this->db->where('kta', $kta);
+
+		$query = $this->db->get();
+		return $query->row(); // return 1 row object
+	}
 
 
 	// public function get_users($start, $length, $search = null)
@@ -104,31 +125,22 @@ class Users_model extends CI_Model
 	//   return $this->db->get()->result();
 	// }
 
-	public function get_users($start, $length, $search = null, $order_col = null, $order_dir = null, $is_duplicate = null, $start_date = null, $end_date = null)
+	public function get_users($start, $length, $search = null, $order_col = null, $order_dir = null, $is_duplicate = null)
 	{
 		$this->db->select('*');
 		$this->db->from('users');
 
-		// 🔹 Filter duplicate
+		// 🔹 Filter duplicate berdasarkan tabel users
 		if ($is_duplicate !== null && $is_duplicate !== '') {
 			if ($is_duplicate == 1) {
+				// Duplicate Only → email sudah ada di users
 				$this->db->where("email IN (SELECT email FROM users)", NULL, FALSE);
 			} elseif ($is_duplicate == 0) {
+				// Non Duplicate Only → email belum ada di users
 				$this->db->where("email NOT IN (SELECT email FROM users)", NULL, FALSE);
 			}
 		}
 
-		// 🔹 Filter date
-		if (!empty($start_date) && !empty($end_date)) {
-			$this->db->where('DATE(created) >=', $start_date);
-			$this->db->where('DATE(created) <=', $end_date);
-		} elseif (!empty($start_date)) {
-			$this->db->where('DATE(created) >=', $start_date);
-		} elseif (!empty($end_date)) {
-			$this->db->where('DATE(created) <=', $end_date);
-		}
-
-		// 🔹 Search
 		if (!empty($search)) {
 			$this->db->group_start();
 			$this->db->like('username', $search);
@@ -136,24 +148,20 @@ class Users_model extends CI_Model
 			$this->db->group_end();
 		}
 
-		// 🔹 Sorting
 		if ($order_col && $order_dir) {
 			$this->db->order_by($order_col, $order_dir);
 		} else {
 			$this->db->order_by('id', 'DESC');
 		}
 
-		// 🔹 Limit
 		$this->db->limit($length, $start);
-
 		return $this->db->get()->result();
 	}
 
-	public function count_filtered($search = null, $is_duplicate = null, $start_date = null, $end_date = null)
+	public function count_filtered($search = null, $is_duplicate = null)
 	{
 		$this->db->from('users');
 
-		// 🔹 Filter duplicate
 		if ($is_duplicate !== null && $is_duplicate !== '') {
 			if ($is_duplicate == 1) {
 				$this->db->where("email IN (SELECT email FROM users)", NULL, FALSE);
@@ -162,17 +170,6 @@ class Users_model extends CI_Model
 			}
 		}
 
-		// 🔹 Filter date
-		if (!empty($start_date) && !empty($end_date)) {
-			$this->db->where('DATE(created) >=', $start_date);
-			$this->db->where('DATE(created) <=', $end_date);
-		} elseif (!empty($start_date)) {
-			$this->db->where('DATE(created) >=', $start_date);
-		} elseif (!empty($end_date)) {
-			$this->db->where('DATE(created) <=', $end_date);
-		}
-
-		// 🔹 Search
 		if (!empty($search)) {
 			$this->db->group_start();
 			$this->db->like('username', $search);
@@ -182,6 +179,8 @@ class Users_model extends CI_Model
 
 		return $this->db->count_all_results();
 	}
+
+
 
 	public function count_all()
 	{

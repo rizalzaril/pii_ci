@@ -41,29 +41,81 @@ class Users extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	// public function detail_aer($kta)
+	// {
+	// 	$this->load->model('Users_model');
+
+	// 	// data profile (satu orang)
+	// 	$data['detail_aer'] = $this->Users_model->get_detail_aer($kta);
+
+
+
+	// 	$this->load->view('header');
+	// 	$this->load->view('aer_details_view', $data);
+	// 	$this->load->view('footer');
+	// }
+
+	// Detail Aer berdasarkan KTA
 	public function detail_aer($kta)
 	{
-		// Ambil data dari model
-		$detail_aer = $this->Users_model->get_detail_aer($kta);
+		$data['detail_aer'] = $this->Users_model->get_detail_aer($kta);
 
-		echo '<pre>';
-		var_dump($detail_aer);
-		echo '</pre>';
-		exit;
-
-		// Ganti semua property NULL jadi tanda '-'
-		foreach ($detail_aer as $key => $value) {
-			if (is_null($value) || $value === '') {
-				$detail_aer->$key = '-';
-			}
+		if (!$data['detail_aer']) {
+			show_404(); // Jika data tidak ditemukan
 		}
 
-		// Kirim ke view
-		$data['detail_aer'] = $detail_aer;
-		$this->load->view('header');
+		$this->load->view('header'); // opsional
 		$this->load->view('aer_details_view', $data);
-		$this->load->view('footer');
+		$this->load->view('footer'); // opsional
 	}
+
+
+	// public function details($kta = '')
+	// {
+	// 	// if ($this->session->userdata('type') == "7") {
+	// 	// 	$this->session->set_flashdata('error', $this->access_deny_msg());
+	// 	// 	redirect('admin/dashboard');
+	// 	// 	exit;
+	// 	// }
+
+	// 	$this->load->model('main_mod');
+	// 	if (empty($kta)) {
+	// 		$this->session->set_flashdata('error', 'Input member id is required.');
+	// 		redirect('admin/members');
+	// 		exit;
+	// 	}
+	// 	$data['title'] = ''; //SITE_NAME.': Member Details';
+	// 	$data['msg'] = '';
+	// 	$obj_row = $this->Users_model->get_aer_by_kta($kta);
+	// 	if ($obj_row) {
+	// 		$data['row'] = $obj_row;
+
+
+	// 		$data['user_address'] = $this->main_mod->msrwhere('user_address', array('user_id' => $kta, 'status' => 1), 'id', 'asc')->result();
+	// 		$data['user_email'] = $this->main_mod->msrwhere('contacts', array('user_id' => $kta, 'contact_type like "%_email%"' => null, 'status' => 1), 'id', 'asc')->result();
+	// 		$data['user_phone'] = $this->main_mod->msrwhere('contacts', array('user_id' => $kta, 'contact_type like "%_phone%"' => null, 'status' => 1), 'id', 'asc')->result();
+	// 		$data['user_edu'] = $this->main_mod->msrwhere('user_edu', array('user_id' => $kta, 'status' => 1), 'id', 'asc')->result();
+	// 		$data['user_cert'] = $this->main_mod->msrwhere('user_cert', array('user_id' => $kta, 'status' => 1), 'id', 'asc')->result();
+	// 		$data['user_exp'] = $this->main_mod->msrwhere('user_exp', array('user_id' => $kta, 'status' => 1), 'id', 'asc')->result();
+	// 		$data['emailx'] = $obj_row->email;
+
+	// 		$data['m_phone'] = $this->main_mod->msrwhere('m_param', array('code' => 'phone'), 'id', 'asc')->result();
+	// 		$data['m_email'] = $this->main_mod->msrwhere('m_param', array('code' => 'email'), 'id', 'asc')->result();
+	// 		$data['m_address'] = $this->main_mod->msrwhere('m_param', array('code' => 'address'), 'id', 'asc')->result();
+	// 		$data['m_degree'] = $this->main_mod->msrwhere('education_type', null, 'EDUCATION_TYPE_ID', 'asc')->result();
+
+	// 		echo '<pre>';
+	// 		var_dump($data);
+	// 		echo '</pre>';
+	// 		exit;
+
+	// 		$this->load->view('aer_details_view', $data);
+	// 		return;
+	// 	}
+	// 	redirect('aer_details_view');
+	// 	exit;
+	// }
+
 
 
 
