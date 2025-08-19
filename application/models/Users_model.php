@@ -49,17 +49,27 @@ class Users_model extends CI_Model
 		$this->db->from('v_aer_members_coba');
 		$this->db->join('user_profiles', 'user_profiles.user_id = v_aer_members_coba.person_id', 'left');
 		$this->db->join('users', 'users.id = v_aer_members_coba.person_id', 'left');
+		$this->db->join('m_param', 'm_param.id = v_aer_members_coba.person_id', 'left');
 		$this->db->where('v_aer_members_coba.kta', $kta);
 		$detail = $this->db->get()->row_array(); // ambil satu baris data utama
 
 		if ($detail) {
 			$person_id = $detail['person_id'];
 
-			// --- Address (bisa banyak) ---
+			// // --- Address (bisa banyak) ---
+			// $detail['addresses'] = $this->db
+			// 	->where('user_id', $person_id)
+			// 	->get('user_address')
+			// 	->result_array();
+
 			$detail['addresses'] = $this->db
-				->where('user_id', $person_id)
-				->get('user_address')
+				->select('user_address.*, m_param.*')       // Ambil semua field alamat + field dari m_param
+				->from('user_address')
+				->join('m_param', 'm_param.id = user_address.user_id', 'left') // Join m_param ke alamat
+				->where('user_address.user_id', $person_id)
+				->get()
 				->result_array();
+
 
 			// --- Experiences ---
 			$detail['experiences'] = $this->db

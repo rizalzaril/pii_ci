@@ -41,24 +41,17 @@ class Users extends CI_Controller
 		$this->load->view('footer');
 	}
 
-	// public function detail_aer($kta)
-	// {
-	// 	$this->load->model('Users_model');
 
-	// 	// data profile (satu orang)
-	// 	$data['detail_aer'] = $this->Users_model->get_detail_aer($kta);
-
-
-
-	// 	$this->load->view('header');
-	// 	$this->load->view('aer_details_view', $data);
-	// 	$this->load->view('footer');
-	// }
 
 	// Detail Aer berdasarkan KTA
 	public function detail_aer($kta)
 	{
 		$data['detail_aer'] = $this->Users_model->get_detail_aer($kta);
+
+		// echo '<pre>';
+		// var_dump($data);
+		// echo '</pre>';
+		// exit;
 
 		if (!$data['detail_aer']) {
 			show_404(); // Jika data tidak ditemukan
