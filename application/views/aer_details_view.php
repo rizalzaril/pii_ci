@@ -33,7 +33,7 @@
 					</div>
 
 					<!-- PROFILE DETAIL -->
-					<div class="card shadow-sm mb-3">
+					<div class="card mb-3 shadow">
 						<div class="card-body">
 							<?php
 							$profileFields = [
@@ -73,7 +73,7 @@
 					</div>
 
 					<!-- CONTACT -->
-					<div class="card mb-3">
+					<div class="card mb-3 shadow">
 						<div class="card-body">
 							<h5>Phone</h5>
 							<hr>
@@ -89,7 +89,7 @@
 					</div>
 
 					<!-- ADDRESSES -->
-					<div class="card mb-3">
+					<div class="card mb-3 shadow">
 						<div class="card-body">
 							<h5 class="fw-bold">Address</h5>
 							<table class="table table-bordered">
@@ -196,7 +196,7 @@
 										<?php endforeach; ?>
 									<?php else: ?>
 										<tr>
-											<td colspan="2"><em>Tidak ada data alamat</em></td>
+											<td colspan="2"><em>Tidak ada pengalaman</em></td>
 										</tr>
 									<?php endif; ?>
 								</tbody>
@@ -205,62 +205,165 @@
 					</div>
 
 
+					<!-- PENDIDIKAN -->
+					<div class="card mb-3 shadow">
+						<div class="card-body">
+							<h3 class="fw-bold text-center">Pendidikan</h3>
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Tipe Pendidikan</th>
+										<th>Institusi / Universitas</th>
+										<th>Tahun</th>
+										<th>Tingkat Pendidikan</th>
+										<th>Fakultas</th>
+										<th>Jurusan/Kejuruan/ Nomor Sertifikat</th>
+										<th>IPK/Nilai</th>
+										<th>Gelar</th>
+										<th>Aktivitas dan kegiatan sosial</th>
+										<th>Deskripsi</th>
+										<th>Dokumen pendukung</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+									$hasEducation = false; // Untuk cek apakah ada data yang ditampilkan
+									if (!empty($detail_aer['educations'])): ?>
+										<?php foreach ($detail_aer['educations'] as $exp): ?>
+											<?php if (isset($exp['status']) && $exp['status'] == 1): ?>
+												<?php $hasEducation = true; ?>
+												<tr class="fw-bold text-muted">
+													<td class="text-muted"><?= $exp['company'] ?? '-' ?></td>
+													<td class="text-muted"><?= $exp['school'] ?? '' ?></td>
+													<td class="text-muted"><?= $exp['startdate'] . ' ' . $exp['enddate'] ?? '' ?></td>
+													<td class="text-muted"><?= $exp['degree'] ?? '' ?></td>
+													<td class="text-muted"><?= $exp['mayor'] ?? '' ?></td>
+													<td class="text-muted"><?= $exp['fieldofstudy'] ?? '' ?></td>
+													<td class="text-muted"><?= $exp['score'] ?? '' ?></td>
+													<td class="text-muted"><?= $exp['title'] ?? '' ?></td>
+													<td class="text-muted"><?= $exp['activities'] ?? '' ?></td>
+													<td class="text-muted">
+														<?php
+														$description = $exp['description'] ?? '';
+														if (!empty($description)) {
+															$items = preg_split('/\d+\.\s*/', $description, -1, PREG_SPLIT_NO_EMPTY);
+															if (!empty($items)) {
+																echo '<ol>';
+																foreach ($items as $item) {
+																	echo '<li>' . trim($item) . '</li>';
+																}
+																echo '</ol>';
+															} else {
+																echo nl2br(htmlspecialchars($description));
+															}
+														} else {
+															echo '-';
+														}
+														?>
+													</td>
+													<td class="text-muted"><?= $exp['document'] ?? '-' ?></td>
+												</tr>
+											<?php endif; ?>
+										<?php endforeach; ?>
+									<?php endif; ?>
 
-
-					<h5>Pengalaman Kerja</h5>
-					<?php if (!empty($detail_aer['experiences'])): ?>
-						<ul class="list-group mb-3">
-							<?php foreach ($detail_aer['experiences'] as $exp): ?>
-								<li class="list-group-item">
-									<strong><?= $exp['company'] ?? '-' ?></strong> - <?= $exp['position'] ?? '-' ?><br>
-									<small><?= $exp['start_date'] ?? '' ?> s/d <?= $exp['end_date'] ?? '' ?></small>
-								</li>
-							<?php endforeach; ?>
-						</ul>
-					<?php else: ?>
-						<p><em>Tidak ada data pengalaman</em></p>
-					<?php endif; ?>
-
-					<!-- EDUCATION -->
-					<h5>Pendidikan</h5>
-					<?php if (!empty($detail_aer['educations'])): ?>
-						<ul class="list-group mb-3">
-							<?php
-							$ada = false;
-							foreach ($detail_aer['educations'] as $edu):
-								if ($edu['status'] == 1):
-									$ada = true;
-							?>
-									<li class="list-group-item">
-										<strong><?= $edu['school'] ?? '-' ?></strong> - <?= $edu['degree'] ?? '-' ?><br>
-										<small><?= $edu['start_year'] ?? '' ?> s/d <?= $edu['end_year'] ?? '' ?></small>
-									</li>
-							<?php
-								endif;
-							endforeach;
-							?>
-							<?php if (!$ada): ?>
-								<p><em>Tidak ada data pendidikan aktif</em></p>
-							<?php endif; ?>
-						</ul>
-					<?php else: ?>
-						<p><em>Tidak ada data pendidikan</em></p>
-					<?php endif; ?>
+									<?php if (!$hasEducation): ?>
+										<tr>
+											<td colspan="10"><em>Tidak ada pendidikan dengan status aktif</em></td>
+										</tr>
+									<?php endif; ?>
+								</tbody>
+							</table>
+						</div>
+					</div>
 
 					<!-- CERTIFICATIONS -->
-					<h5>Sertifikat</h5>
-					<?php if (!empty($detail_aer['certifications'])): ?>
-						<ul class="list-group mb-3">
-							<?php foreach ($detail_aer['certifications'] as $cert): ?>
-								<li class="list-group-item">
-									<strong><?= $cert['title'] ?? '-' ?></strong><br>
-									<small><?= $cert['issuer'] ?? '' ?> (<?= $cert['year'] ?? '' ?>)</small>
-								</li>
-							<?php endforeach; ?>
-						</ul>
-					<?php else: ?>
-						<p><em>Tidak ada data sertifikat</em></p>
-					<?php endif; ?>
+					<div class="card mb-3 shadow">
+						<div class="card-body">
+							<h3 class="fw-bold text-center">Sertifikasi Profesional</h3>
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Nama Sertifikasi </th>
+										<th>Otoritas Sertifikasi </th>
+										<th>Nomor lisensi </th>
+										<th>URL sertifikasi </th>
+										<th>Kualifikasi </th>
+										<th>Tanggal</th>
+										<th>Deskripsi</th>
+										<th>Dokumen pendukung</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php
+									$hasCert = false; // Untuk cek apakah ada data yang ditampilkan
+									if (!empty($detail_aer['certifications'])): ?>
+										<?php foreach ($detail_aer['certifications'] as $cert): ?>
+											<?php if (isset($cert['status']) && $cert['status'] == 1): ?>
+												<?php $hasCert = true; ?>
+												<tr class="fw-bold text-muted">
+													<td class="text-muted"><?= $cert['cert_name'] ?? '-' ?></td>
+													<td class="text-muted"><?= $cert['cert_auth'] ?? '' ?></td>
+													<td class="text-muted"><?= $cert['lic_num'] ?? '' ?></td>
+													<td class="text-muted"><?= $cert['cert_url'] ?? '' ?></td>
+													<td class="text-muted"><?= $cert['cert_title'] ?? '' ?></td>
+													<td class="text-muted">
+														<?php
+														// Tampilkan tanggal mulai
+														$startYear  = isset($cert['startyear']) ? $cert['startyear'] : '';
+														$startMonth = isset($cert['startmonth']) ? date('M', mktime(0, 0, 0, (int)$cert['startmonth'], 1)) : '';
+
+														echo trim($startMonth . ' ' . $startYear);
+
+														echo ' - ';
+
+														// Tampilkan tanggal akhir atau "Present"
+														if (isset($cert['is_present']) && $cert['is_present'] == '1') {
+															echo 'Present';
+														} else {
+															$endYear  = isset($cert['endyear']) ? $cert['endyear'] : '';
+															$endMonth = isset($cert['endmonth']) ? date('M', mktime(0, 0, 0, (int)$cert['endmonth'], 1)) : '';
+															echo trim($endMonth . ' ' . $endYear);
+														}
+														?>
+													</td>
+													<td class="text-muted">
+														<?php
+														$description = $cert['description'] ?? '';
+														if (!empty($description)) {
+															$items = preg_split('/\d+\.\s*/', $description, -1, PREG_SPLIT_NO_EMPTY);
+															if (!empty($items)) {
+																echo '<ol>';
+																foreach ($items as $item) {
+																	echo '<li>' . trim($item) . '</li>';
+																}
+																echo '</ol>';
+															} else {
+																echo nl2br(htmlspecialchars($description));
+															}
+														} else {
+															echo '-';
+														}
+														?>
+													</td>
+
+
+
+													<td class="text-muted"><?= $cert['document'] ?? '-' ?></td>
+												</tr>
+											<?php endif; ?>
+										<?php endforeach; ?>
+									<?php endif; ?>
+
+									<?php if (!$hasEducation): ?>
+										<tr>
+											<td colspan="10"><em>Tidak ada pendidikan dengan status aktif</em></td>
+										</tr>
+									<?php endif; ?>
+								</tbody>
+							</table>
+						</div>
+					</div>
 
 				</div>
 			</div>
