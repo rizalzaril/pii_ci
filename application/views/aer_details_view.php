@@ -41,7 +41,22 @@
 								'Last Name' => 'lastname',
 								'Gender' => 'gender',
 								'Mobile Phone' => 'mobilephone',
-								'ID Card' => 'idcard',
+								'ID Card' => function ($d) {
+									if (!empty($d['idcard'])) {
+										// ambil type
+										$idType = isset($d['idtype']) ? ' (' . $d['idtype'] . ')' : '';
+
+										// buat tombol download PDF
+										$downloadBtn = '<a href="' . base_url('uploads/idcard/' . $d['idcard']) . '" 
+										class="btn btn-sm btn-danger ms-2" target="_blank">
+										<i class="fa-solid fa-arrow-down"></i>Download
+										</a>';
+
+										// tampilkan nama file + idtype + tombol download
+										return $d['idcard'] . $idType . ' ' . $downloadBtn;
+									}
+									return '-';
+								},
 								'VA' => 'va',
 								'Date of Birth' => function ($d) {
 									return $d['birthplace'] . ', ' . date('d-m-Y', strtotime($d['dob']));
@@ -53,24 +68,23 @@
 								'Description' => 'description'
 							];
 							?>
+
 							<?php foreach ($profileFields as $label => $key): ?>
 								<div class="row mb-2">
 									<div class="col-4">
 										<label class="fw-bold"><?= $label ?></label>
 									</div>
 									<div class="col-8">
-										<p class="">
+										<p class="mb-0">
 											<?= is_callable($key) ? $key($detail_aer) : ($detail_aer[$key] ?? '-') ?>
 										</p>
 									</div>
 								</div>
 							<?php endforeach; ?>
-
-
-
-							<?php ?>
 						</div>
 					</div>
+
+
 
 					<!-- CONTACT -->
 					<div class="card mb-3 shadow">
@@ -190,7 +204,17 @@
 													?>
 												</td>
 
-												<td class="text-muted"> <?= $exp['title'] ?? '' ?></td>
+												<td class="text-muted">
+													<?php if (!empty($exp['attachment'])): ?>
+														<a href="<?= base_url('uploads/attachment/' . $exp['attachment']) ?>"
+															class="btn btn-sm btn-danger"
+															target="_blank">
+															<i class="fa-solid fa-arrow-down"></i> PDF
+														</a>
+													<?php else: ?>
+														-
+													<?php endif; ?>
+												</td>
 
 											</tr>
 										<?php endforeach; ?>
@@ -229,22 +253,22 @@
 									<?php
 									$hasEducation = false; // Untuk cek apakah ada data yang ditampilkan
 									if (!empty($detail_aer['educations'])): ?>
-										<?php foreach ($detail_aer['educations'] as $exp): ?>
-											<?php if (isset($exp['status']) && $exp['status'] == 1): ?>
+										<?php foreach ($detail_aer['educations'] as $edu): ?>
+											<?php if (isset($edu['status']) && $edu['status'] == 1): ?>
 												<?php $hasEducation = true; ?>
 												<tr class="fw-bold text-muted">
-													<td class="text-muted"><?= $exp['company'] ?? '-' ?></td>
-													<td class="text-muted"><?= $exp['school'] ?? '' ?></td>
-													<td class="text-muted"><?= $exp['startdate'] . ' ' . $exp['enddate'] ?? '' ?></td>
-													<td class="text-muted"><?= $exp['degree'] ?? '' ?></td>
-													<td class="text-muted"><?= $exp['mayor'] ?? '' ?></td>
-													<td class="text-muted"><?= $exp['fieldofstudy'] ?? '' ?></td>
-													<td class="text-muted"><?= $exp['score'] ?? '' ?></td>
-													<td class="text-muted"><?= $exp['title'] ?? '' ?></td>
-													<td class="text-muted"><?= $exp['activities'] ?? '' ?></td>
+													<td class="text-muted"><?= $edu['company'] ?? '-' ?></td>
+													<td class="text-muted"><?= $edu['school'] ?? '' ?></td>
+													<td class="text-muted"><?= $edu['startdate'] . ' ' . $edu['enddate'] ?? '' ?></td>
+													<td class="text-muted"><?= $edu['degree'] ?? '' ?></td>
+													<td class="text-muted"><?= $edu['mayor'] ?? '' ?></td>
+													<td class="text-muted"><?= $edu['fieldofstudy'] ?? '' ?></td>
+													<td class="text-muted"><?= $edu['score'] ?? '' ?></td>
+													<td class="text-muted"><?= $edu['title'] ?? '' ?></td>
+													<td class="text-muted"><?= $edu['activities'] ?? '' ?></td>
 													<td class="text-muted">
 														<?php
-														$description = $exp['description'] ?? '';
+														$description = $edu['description'] ?? '';
 														if (!empty($description)) {
 															$items = preg_split('/\d+\.\s*/', $description, -1, PREG_SPLIT_NO_EMPTY);
 															if (!empty($items)) {
@@ -261,7 +285,18 @@
 														}
 														?>
 													</td>
-													<td class="text-muted"><?= $exp['document'] ?? '-' ?></td>
+													<td class="text-muted">
+														<?php if (!empty($edu['attachment'])): ?>
+															<a href="<?= base_url('uploads/attachment/' . $edu['attachment']) ?>"
+																class="btn btn-sm btn-danger"
+																target="_blank">
+																<i class="fa-solid fa-arrow-down"></i> PDF
+															</a>
+														<?php else: ?>
+															-
+														<?php endif; ?>
+													</td>
+
 												</tr>
 											<?php endif; ?>
 										<?php endforeach; ?>
@@ -349,7 +384,17 @@
 
 
 
-													<td class="text-muted"><?= $cert['document'] ?? '-' ?></td>
+													<td class="text-muted">
+														<?php if (!empty($cert['attachment'])): ?>
+															<a href="<?= base_url('uploads/attachment/' . $cert['attachment']) ?>"
+																class="btn btn-sm btn-danger"
+																target="_blank">
+																<i class="fa-solid fa-arrow-down"></i> PDF
+															</a>
+														<?php else: ?>
+															-
+														<?php endif; ?>
+													</td>
 												</tr>
 											<?php endif; ?>
 										<?php endforeach; ?>
