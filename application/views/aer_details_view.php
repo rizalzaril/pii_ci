@@ -106,18 +106,31 @@
 					<div class="card mb-3 shadow">
 						<div class="card-body">
 							<h5 class="fw-bold">Address</h5>
-							<table class="table table-bordered">
-								<thead>
-									<tr>
-										<th>Type</th>
-										<th>Address</th>
-									</tr>
-								</thead>
+							<table class="table table-borderless">
 								<tbody>
 									<?php if (!empty($detail_aer['addresses'])): ?>
 										<?php foreach ($detail_aer['addresses'] as $addr): ?>
 											<tr>
-												<td><?= $addr['address_type'] ?? 'Home' ?></td>
+												<td style="width: 200px;">
+													<?= $addr['desc'] ?>
+													<br>
+													<?php if (isset($addr['is_mailing']) && $addr['is_mailing'] == 1): ?>
+														Mailing Address
+													<?php else: ?>
+														<?php
+														// cek ke tabel referensi address type
+														$label = '-';
+														if (!empty($user_address)) {
+
+															if ($ua->id == $addr['address_type']) {
+																$label = $addr['desc'];
+																break;
+															}
+														}
+														echo $label;
+														?>
+													<?php endif; ?>
+												</td>
 												<td>
 													<?= $addr['address'] ?? '-' ?><br>
 													<?= $addr['city'] ?? '' ?><br>
@@ -135,6 +148,8 @@
 							</table>
 						</div>
 					</div>
+
+
 
 
 					<!-- EXPERIENCE -->
@@ -257,7 +272,16 @@
 											<?php if (isset($edu['status']) && $edu['status'] == 1): ?>
 												<?php $hasEducation = true; ?>
 												<tr class="fw-bold text-muted">
-													<td class="text-muted"><?= $edu['company'] ?? '-' ?></td>
+													<td class="text-muted">
+														<?php
+														$typeMap = [
+															'1' => 'Akademis',
+															'2' => 'Profesi'
+														];
+														?>
+														<?= $typeMap[$edu['type']] ?? '-' ?>
+													</td>
+
 													<td class="text-muted"><?= $edu['school'] ?? '' ?></td>
 													<td class="text-muted"><?= $edu['startdate'] . ' ' . $edu['enddate'] ?? '' ?></td>
 													<td class="text-muted"><?= $edu['degree'] ?? '' ?></td>

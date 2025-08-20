@@ -65,7 +65,7 @@ class Users_model extends CI_Model
 			$detail['addresses'] = $this->db
 				->select('user_address.*, m_param.*')       // Ambil semua field alamat + field dari m_param
 				->from('user_address')
-				->join('m_param', 'm_param.id = user_address.user_id', 'left') // Join m_param ke alamat
+				->join('m_param', 'm_param.id = user_address.addresstype', 'left') // Join m_param ke alamat
 				->where('user_address.user_id', $person_id)
 				->get()
 				->result_array();
