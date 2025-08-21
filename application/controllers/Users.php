@@ -97,7 +97,8 @@ class Users extends CI_Controller
 			show_404(); // Jika data tidak ditemukan
 		}
 
-		$this->load->view('header'); // opsional
+		$this->load->view('header'); // 
+		
 		$this->load->view('acpe_details_view', $data);
 		$this->load->view('footer'); // opsional
 	}
