@@ -441,4 +441,88 @@ class Import extends CI_Controller
 
 		redirect('/users');
 	}
+
+
+	/////////////////////////////// IMPORT UNTUK DATA AER \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+	public function import_proccess_aer()
+	{
+		// Konfigurasi upload
+		$config = [
+			'upload_path'   => './uploads/excel_import/',
+			'allowed_types' => 'xlsx|xls|csv',
+			'max_size'      => 2048,
+			'file_name'     => 'excel_import_' . time()
+		];
+
+		$this->load->library('upload', $config);
+
+		if (!$this->upload->do_upload('excel_file')) {
+			$this->session->set_flashdata('error', $this->upload->display_errors());
+			redirect('/aer');
+			return;
+		}
+
+		$uploadedFile = $this->upload->data();
+
+		try {
+			// Load spreadsheet
+			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($uploadedFile['full_path']);
+			$sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+			$duplicateData = []; // simpan duplikat kta/no_aer
+
+			foreach ($sheetData as $rowIndex => $row) {
+				if ($rowIndex === 1) continue; // Skip header
+				if (empty(array_filter($row))) continue; // Skip baris kosong
+
+				$no_aer = trim($row['A']);
+				$nama   = trim($row['B']);
+				$kta    = trim($row['C']);
+				$grade  = trim($row['D']);
+
+				if (!$no_aer && !$kta) continue; // skip kalau kosong semua
+
+				// 🔎 cek apakah no_aer atau kta sudah ada di DB
+				$exists = $this->db->where('no_aer', $no_aer)
+					->or_where('kta', $kta)
+					->get('aer')
+					->row();
+
+				if ($exists) {
+					$duplicateData[] = "Baris {$rowIndex}: no_aer = {$no_aer}, kta = {$kta} sudah ada di DB";
+					continue; // skip insert
+				}
+
+				// ===================== INSERT AER =====================
+				$data_aer = [
+					'no_aer' => $no_aer,
+					'nama'   => $nama,
+					'grade'  => $grade,
+					'kta'    => $kta,
+				];
+
+				// var_dump($data_aer);
+				// exit;
+
+				$this->Pii_Model->insert_from_import_aer($data_aer);
+			}
+
+			// Hapus file upload
+			if (file_exists($uploadedFile['full_path'])) {
+				unlink($uploadedFile['full_path']);
+			}
+
+			// Feedback hasil import
+			if (!empty($duplicateData)) {
+				$message = "Data berikut sudah ada di database:<br>" . implode('<br>', $duplicateData);
+				$this->session->set_flashdata('error_import', $message);
+			} else {
+				$this->session->set_flashdata('success_import', '✅ Semua data berhasil diimpor.');
+			}
+		} catch (\Exception $e) {
+			$this->session->set_flashdata('error', 'Gagal memproses file: ' . $e->getMessage());
+		}
+
+		redirect('/aer');
+	}
 }

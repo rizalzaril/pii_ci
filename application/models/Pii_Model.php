@@ -56,6 +56,11 @@ class Pii_Model extends CI_Model
 		return $this->db->insert('users', $data);
 	}
 
+	public function insert_from_import_aer($data)
+	{
+		return $this->db->insert('aer', $data);
+	}
+
 	public function insert_data_profiles($data_profiles)
 	{
 		return $this->db->insert('user_profiles', $data_profiles);

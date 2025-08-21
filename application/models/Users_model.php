@@ -38,6 +38,8 @@ class Users_model extends CI_Model
 	// 	return $this->db->get()->result();
 	// }
 
+
+	//GET DETAIL AER BY KTA
 	public function get_detail_aer($kta)
 	{
 		// --- Ambil data utama (tanpa address, karena address bisa banyak) ---
@@ -51,6 +53,64 @@ class Users_model extends CI_Model
 		$this->db->join('users', 'users.id = v_aer_members_coba.person_id', 'left');
 		$this->db->join('m_param', 'm_param.id = v_aer_members_coba.person_id', 'left');
 		$this->db->where('v_aer_members_coba.kta', $kta);
+		$detail = $this->db->get()->row_array(); // ambil satu baris data utama
+
+		if ($detail) {
+			$person_id = $detail['person_id'];
+
+			// // --- Address (bisa banyak) ---
+			// $detail['addresses'] = $this->db
+			// 	->where('user_id', $person_id)
+			// 	->get('user_address')
+			// 	->result_array();
+
+			$detail['addresses'] = $this->db
+				->select('user_address.*, m_param.*')       // Ambil semua field alamat + field dari m_param
+				->from('user_address')
+				->join('m_param', 'm_param.id = user_address.addresstype', 'left') // Join m_param ke alamat
+				->where('user_address.user_id', $person_id)
+				->get()
+				->result_array();
+
+
+			// --- Experiences ---
+			$detail['experiences'] = $this->db
+				->where('user_id', $person_id)
+				->get('user_exp')
+				->result_array();
+
+			// --- Educations ---
+			$detail['educations'] = $this->db
+				->where('user_id', $person_id)
+				->get('user_edu')
+				->result_array();
+
+			// --- Certifications ---
+			$detail['certifications'] = $this->db
+				->where('user_id', $person_id)
+				->get('user_cert')
+				->result_array();
+		}
+
+		return $detail;
+	}
+
+
+
+	//GET DETAIL APEC BY KTA
+	public function get_detail_apec($kta)
+	{
+		// --- Ambil data utama (tanpa address, karena address bisa banyak) ---
+		$this->db->select('
+			v_apec_members.*, 
+			user_profiles.*, 
+			users.*
+		');
+		$this->db->from('v_apec_members');
+		$this->db->join('user_profiles', 'user_profiles.user_id = v_apec_members.person_id', 'left');
+		$this->db->join('users', 'users.id = v_apec_members.person_id', 'left');
+		// $this->db->join('m_param', 'm_param.id = v_apec_members.person_id', 'left');
+		$this->db->where('v_apec_members.nokta', $kta);
 		$detail = $this->db->get()->row_array(); // ambil satu baris data utama
 
 		if ($detail) {

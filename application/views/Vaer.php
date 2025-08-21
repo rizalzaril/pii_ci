@@ -29,10 +29,11 @@
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Import XLSX/CSV</h5> <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body"> <?= form_open_multipart('import/import_proccess/', ['id' => 'formImport']) ?> <!-- Form file upload XLSX -->
+        <div class="modal-body"> <?= form_open_multipart('import/import_proccess_aer/', ['id' => 'formImport']) ?> <!-- Form file upload XLSX -->
           <div class="mb-3"> <label for="" class="form-label fw-bold">Nama File XLSX/CSV*</label> <input type="file" name="excel_file" class="form-control shadow-sm" accept=".xls,.xlsx,.csv" required> </div>
-          <div class="mb-3"> <label for="kodkel" class="form-label fw-bold">Kode Kelompok*</label> <select name="kodkel" id="kodkel" class="form-control form-select shadow-sm"> <?php foreach ($list_kelompok as $kodkel) : ?> <option value="<?= $kodkel->id ?>"><?= $kodkel->id ?>. <?= $kodkel->name ?></option> <?php endforeach; ?> </select> </div>
-          <div class="mb-3"> <label for="passwordImport" class="form-label fw-bold">Password*</label> <input type="text" class="form-control shadow-sm" name="password" placeholder="Masukkan Password Default untuk Aplikan" required> </div> <button type="submit" class="btn btn-success">Import</button> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <?= form_close() ?> <!-- Overlay Loading -->
+
+          <button type="submit" class="btn btn-success">Import</button> <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> <?= form_close() ?> <!-- Overlay Loading -->
+
           <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; text-align:center; color:white; padding-top:20%;">
             <div class="spinner-border text-light" role="status" style="width:3rem; height:3rem;"></div>
             <p class="mt-3 fs-5">Sedang mengimport data, mohon tunggu...</p>

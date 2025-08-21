@@ -28,7 +28,7 @@
 					<!-- PHOTO -->
 					<div class="d-flex justify-content-center mb-3">
 						<img class="img-thumbnail" width="250"
-							src="https://updmember.pii.or.id/assets/uploads/<?= $detail_aer['photo'] ?>"
+							src="<?= base_url('assets/uploads/') . $detail_aer['photo'] ?>"
 							alt="">
 					</div>
 
