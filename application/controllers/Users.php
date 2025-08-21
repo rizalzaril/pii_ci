@@ -83,6 +83,26 @@ class Users extends CI_Controller
 	}
 
 
+	// Detail ACPE berdasarkan KTA
+	public function detail_acpe($kta)
+	{
+		$data['detail_acpe'] = $this->Users_model->get_detail_acpe($kta);
+
+		// echo '<pre>';
+		// var_dump($data);
+		// echo '</pre>';
+		// exit;
+
+		if (!$data['detail_acpe']) {
+			show_404(); // Jika data tidak ditemukan
+		}
+
+		$this->load->view('header'); // opsional
+		$this->load->view('acpe_details_view', $data);
+		$this->load->view('footer'); // opsional
+	}
+
+
 	// public function details($kta = '')
 	// {
 	// 	// if ($this->session->userdata('type') == "7") {
