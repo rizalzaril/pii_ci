@@ -232,6 +232,15 @@ class Aer extends CI_Controller
             </a>
         ';
 
+      // cek apakah url_aer ada isinya
+      if (!empty($aer->url_aer)) {
+        $url_aer = '<a href="' . $aer->url_aer . '" target="_blank" class="btn btn-sm btn-info">
+                        <i class="fa fa-file"></i> Lihat File
+                    </a>';
+      } else {
+        $url_aer = '<span class="text-danger">File tidak tersedia</span>';
+      }
+
       $data[] = [
         '<input type="checkbox" class="row_checkbox" value="' . $aer->id . '">',
         $no++,
@@ -239,6 +248,8 @@ class Aer extends CI_Controller
         $aer->nama,
         $aer->grade,
         $aer->kta,
+        // $aer->doi,
+        // $url_aer,
         $actionButtons
       ];
     }

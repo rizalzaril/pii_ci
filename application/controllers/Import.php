@@ -475,30 +475,34 @@ class Import extends CI_Controller
 				if ($rowIndex === 1) continue; // Skip header
 				if (empty(array_filter($row))) continue; // Skip baris kosong
 
-				$no_aer = trim($row['A']);
-				$nama   = trim($row['B']);
-				$kta    = trim($row['C']);
-				$grade  = trim($row['D']);
+				$no_aer 	= trim($row['A']);
+				$nama   	= trim($row['B']);
+				$grade    	= trim($row['C']);
+				$kta  	= trim($row['D']);
+				// $doi  		= trim($row['E']);
+				// $url_aer  = trim($row['F']);
 
 				if (!$no_aer && !$kta) continue; // skip kalau kosong semua
 
 				// 🔎 cek apakah no_aer atau kta sudah ada di DB
-				$exists = $this->db->where('no_aer', $no_aer)
-					->or_where('kta', $kta)
-					->get('aer')
-					->row();
+				// $exists = $this->db->where('no_aer', $no_aer)
+				// 	->or_where('kta', $kta)
+				// 	->get('aer')
+				// 	->row();
 
-				if ($exists) {
-					$duplicateData[] = "Baris {$rowIndex}: no_aer = {$no_aer}, kta = {$kta} sudah ada di DB";
-					continue; // skip insert
-				}
+				// if ($exists) {
+				// 	$duplicateData[] = "Baris {$rowIndex}: no_aer = {$no_aer}, kta = {$kta} sudah ada di DB";
+				// 	continue; // skip insert
+				// }
 
 				// ===================== INSERT AER =====================
 				$data_aer = [
-					'no_aer' => $no_aer,
-					'nama'   => $nama,
-					'grade'  => $grade,
-					'kta'    => $kta,
+					'no_aer' 			=> $no_aer,
+					'nama'   			=> $nama,
+					'grade'  			=> $grade,
+					'kta'    			=> $kta,
+					// 'doi'    		 	=> $doi,
+					// 'url_aer'    	=> $url_aer,
 				];
 
 				// var_dump($data_aer);

@@ -112,7 +112,9 @@
         <th>No. AER</th>
         <th>NAMA</th>
         <th>GRADE</th>
-        <th>NO KTA Status</th>
+        <th>NO KTA</th>
+        <!-- <th>DOI</th>
+        <th>URL FILE</th> -->
         <th>#</th>
       </tr>
     </thead>
