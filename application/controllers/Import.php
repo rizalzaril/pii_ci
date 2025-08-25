@@ -477,10 +477,10 @@ class Import extends CI_Controller
 
 				$no_aer 	= trim($row['A']);
 				$nama   	= trim($row['B']);
-				$grade    	= trim($row['C']);
-				$kta  	= trim($row['D']);
-				// $doi  		= trim($row['E']);
-				// $url_aer  = trim($row['F']);
+				$grade    	= trim($row['D']);
+				$kta  	= trim($row['C']);
+				$doi  		= trim($row['E']);
+				$url_aer  = trim($row['F']);
 
 				if (!$no_aer && !$kta) continue; // skip kalau kosong semua
 
@@ -501,8 +501,8 @@ class Import extends CI_Controller
 					'nama'   			=> $nama,
 					'grade'  			=> $grade,
 					'kta'    			=> $kta,
-					// 'doi'    		 	=> $doi,
-					// 'url_aer'    	=> $url_aer,
+					'doi'    		 	=> $doi,
+					'url_aer'    	=> $url_aer,
 				];
 
 				// var_dump($data_aer);
