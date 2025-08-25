@@ -808,7 +808,7 @@ class Userprovisioner extends CI_Controller
     // FOR SIMULATION set it to TRUE
     // When it set to true, it will not insert data into the correct table
     // Instead it will create a dummy tables and insert into it
-    $__USE_DUMMY_TABLES__ = FALSE; // diganti TRUE untuk ke table Dummy
+    $__USE_DUMMY_TABLES__ = TRUE; // diganti TRUE untuk ke table Dummy
 
     // Dummy table prefix
     $TABLE_PREFIX_FOR_DUMMY = 'dummy_';

@@ -17,7 +17,6 @@
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	<script src="<?php echo base_url('assets/js/jquery-3.1.1.min.js') ?>" type="text/javascript"></script>
 
 
 	<style type="text/css">
@@ -38,8 +37,6 @@
 	</style>
 
 	<link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
-	<script src="/assets/js/jquery.js" type="text/javascript"></script>
-
 	<link rel="stylesheet" type="text/css" href="/assets/css/datatable.css" />
 	<script src="/assets/js/jquery.dataTables.js" type="text/javascript"></script>
 
@@ -112,6 +109,8 @@
 					$('#id_noaer').val('');
 					$('#id_nama').val('');
 					$('#id_grade').val('');
+					$('#id_doi').val('');
+					$('#id_url').val('');
 					$('#id_pros').val("Simpan");
 					$('.modal-title').html('Tambah Data ASEAN Eng');
 					$('#myModal').modal('show');
@@ -302,6 +301,22 @@
 								<input type="text" name="id_nama" id="id_nama" class="form-control" placeholder="Masukkan Nama">
 							</div>
 						</div>
+
+						<div class="form-group">
+							<label for="id_doi" class="col-sm-3 control-label">Doi</label>
+							<div class="col-sm-9">
+								<input type="text" name="id_doi" id="id_doi" class="form-control" placeholder="Masukkan Doi">
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="id_url" class="col-sm-3 control-label">Url</label>
+							<div class="col-sm-9">
+								<input type="text" name="id_url" id="id_url" class="form-control" placeholder="Masukkan Url">
+							</div>
+						</div>
+
+
 
 						<input type="hidden" name="id_id" id="id_id">
 
