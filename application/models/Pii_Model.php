@@ -61,6 +61,11 @@ class Pii_Model extends CI_Model
 		return $this->db->insert('aer', $data);
 	}
 
+	public function insert_from_import_acpe($data)
+	{
+		return $this->db->insert('acpe', $data);
+	}
+
 	public function insert_data_profiles($data_profiles)
 	{
 		return $this->db->insert('user_profiles', $data_profiles);
