@@ -12,8 +12,6 @@ const MEMBER_IJAZAH_DIR = FCPATH . 'assets/uploads/';
 const MEMBER_IJASAH_DUMMY_DIR = FCPATH . 'assets-temp/uploads/';
 
 const CSV_DATE_FORMAT = 'd/m/Y';
-//const CSV_DATE_FORMAT = 'Y-m-d';
-
 
 /**
  * SETUP:
@@ -53,7 +51,7 @@ class Userprovisioner extends CI_Controller
     );
 
     // Directory to store backup file (the old file that replaced by file upload)
-    $this->BACKUP_DIR = '/var/www/assets-temp/';
+    $this->BACKUP_DIR = '/var/www/assets-backup/';
 
     if (!$this->session->userdata('is_admin_login') && $this->session->userdata('admin_username') !== 'sp') {
       redirect(base_url() . 'admin');
@@ -112,7 +110,26 @@ class Userprovisioner extends CI_Controller
       }
       $file = $target_dir . $this->upload->data('client_name');
 
+      if (file_exists($file)) {
+        if ($this->input->post('status') == 1) {
+          // User choose to not overwrite if the same file name exist
+          $error = array(
+            'error' => 'Upload failed: File with the same name is exist!',
+            'target_dirs' => $this->target_dirs,
+            'reasons' => $this->reasons,
+            'comment' => $this->input->post('comment')
+          );
 
+          $this->load->view('admin/userprovisioning_view', $error);
+          return;
+        }
+
+        // Move existing file to backup dir
+        elseif ($this->input->post('status') == 2) {
+          $date = new \DateTime();
+          rename($file, $this->BACKUP_DIR . 'backup-' . $date->format('YmdHis') . '~' . $this->upload->data('client_name'));
+        }
+      }
 
       // Move upload file to expected dir
       if (rename($config['upload_path'] . $this->upload->data('file_name'), $file)) {
@@ -335,56 +352,42 @@ class Userprovisioner extends CI_Controller
   /**
    * default format 'mm/dd/yy' e.g. '12/31/24'
    */
-  //  protected function check_birthdate($date_string, $format = 'd/m/Y', $maxage = 90) {
-  protected function check_birthdate($date_string, $format = 'Y-m-d', $maxage = 90)
+  protected function check_birthdate($date_string, $format = 'd/m/Y', $maxage = 90)
   {
 
-    /*
-        if ( ($date = DateTime::createFromFormat($format, $date_string)) === FALSE ) {
-            throw new Exception('Birth date error. Format is not match: '.$format.', date_string: '.$date_string);
-        }
+    if (($date = DateTime::createFromFormat($format, $date_string)) === FALSE) {
+      throw new Exception('Birth date error. Format is not match: ' . $format . ', date_string: ' . $date_string);
+    }
 
-        $now = new DateTime();
-        $interval = $now->diff($date);
-        if ( $interval->y > $maxage) {
-            throw new Exception('Birth date error. Age is more than '.$maxage);
-        }
-*/
-    //	$now = new DateTime();
-    //	$date = DateTime::createFromFormat($format, $date_string) ;
-    //       $birthday  =  $date->format(CSV_DATE_FORMAT);
-    $birthday  =  '0000-00-00';
+    $now = new DateTime();
+    $interval = $now->diff($date);
+    if ($interval->y > $maxage) {
+      throw new Exception('Birth date error. Age is more than ' . $maxage);
+    }
+    $birthday  =  $date->format(CSV_DATE_FORMAT);
     return $birthday;
   }
 
-
   protected function format_mobilephone($no, $countrycode = '62', $withplus = false)
   {
-
-    //--------------------------------
-    /*
-        $no = preg_replace('/(?!^\+)[^\d]/x', "", $no); //remove non numeric except + in the begining
-        switch (true) {
-            case (preg_match('#^8\d{4,11}$#', $no)):
-                $no = $countrycode . $no;
-                break;
-            case (preg_match('#^08\d{5,13}$#', $no)):
-                $no = $countrycode . substr($no, 1);
-                break;
-            case (preg_match('#^'.$countrycode.'\d{5,13}$#', $no)):
-                $no = $no;
-                break;
-            case (preg_match('#^\+'.$countrycode.'\d{5,13}$#', $no)):
-                $no = substr($no, 1);
-                break;
-            default:
-                throw new Exception('Invalid mobile phone number format');
-                break;
-        }
-
-*/
-    //-----------------------------------------------------------------------------
-
+    $no = preg_replace('/(?!^\+)[^\d]/x', "", $no); //remove non numeric except + in the begining
+    switch (true) {
+      case (preg_match('#^8\d{4,11}$#', $no)):
+        $no = $countrycode . $no;
+        break;
+      case (preg_match('#^08\d{5,13}$#', $no)):
+        $no = $countrycode . substr($no, 1);
+        break;
+      case (preg_match('#^' . $countrycode . '\d{5,13}$#', $no)):
+        $no = $no;
+        break;
+      case (preg_match('#^\+' . $countrycode . '\d{5,13}$#', $no)):
+        $no = substr($no, 1);
+        break;
+      default:
+        throw new Exception('Invalid mobile phone number format');
+        break;
+    }
     if ($withplus) $no = '+' . $no;
     return $no;
   }
@@ -408,7 +411,7 @@ class Userprovisioner extends CI_Controller
 
   /**
    * Format KTA. Remove non numeric, ussually like: dot, space, dash
-   * Get only 6 digit (NUMBER_OF_KTA_DIGIT) from the input
+   * Get only 6 digit (NUMBER_OF_KTA_DIGIT) from the input   
    */
   protected function format_kta($kta)
   {
@@ -449,7 +452,7 @@ class Userprovisioner extends CI_Controller
 
   /**
    * Update user's photo by copying from external URL
-   * @param prefix Support to store photos in the temporary folder for testing, and update dummy `user_profile` table
+   * @param prefix Support to store photos in the temporary folder for testing, and update dummy `user_profile` table 
    */
   function update_photo($user_id, $url, $user_modifier = 0, $prefix = '')
   {
@@ -510,7 +513,7 @@ class Userprovisioner extends CI_Controller
         throw new Exception('Cannot copy photo/image from url: ' . $url . ' as file: ' . $filename . '. Message: ' . $t->getMessage());
       }
 
-      // Old method - does works for UGM case (file not in Google Drive)
+      // Old method - does works for UGM case (file not in Google Drive)    
     } else {
 
       if (! @copy($url, $fileloc)) {
@@ -592,7 +595,7 @@ class Userprovisioner extends CI_Controller
         throw new Exception('Cannot copy idcard/image from url: ' . $url . ' as file: ' . $filename . '. Message: ' . $t->getMessage());
       }
 
-      // Old method - does works for UGM case (file not in Google Drive)
+      // Old method - does works for UGM case (file not in Google Drive)    
     } else {
 
       if (! @copy($url, $fileloc)) {
@@ -675,7 +678,7 @@ class Userprovisioner extends CI_Controller
         throw new Exception('Cannot copy ijasah/image from url: ' . $url . ' as file: ' . $filename . '. Message: ' . $t->getMessage());
       }
 
-      // Old method - does works for UGM case (file not in Google Drive)
+      // Old method - does works for UGM case (file not in Google Drive)    
     } else {
 
       if (! @copy($url, $fileloc)) {
@@ -702,7 +705,7 @@ class Userprovisioner extends CI_Controller
   protected function generate_password()
   {
     $new_pwd = generate_random_password();
-    //$encypt_pwd =
+    //$encypt_pwd = 
     return $new_pwd;
   }
 
@@ -716,7 +719,7 @@ class Userprovisioner extends CI_Controller
 
   /**
    * Main function to start processing CSV file
-   * For test:
+   * For test: 
    * Folder: cd /var/www/dev/assets/uploads/userprovisioner/
    * https://simponi-dev.pii.or.id/index.php/admin/userprovisioner/process_csv/pengajuan_kta_feb2024_csvforexcel_enter_char_removed_test1row.csv
    * https://simponi-dev.pii.or.id/index.php/admin/userprovisioner/process_csv/pengajuan_kta_feb2024_batch13_ugm.csv
@@ -733,63 +736,56 @@ class Userprovisioner extends CI_Controller
 
     $KOLEKTIF_IDS = array(
       //'744', //PSPPI Kehutanan UGM
-      //'682' //UGM
-      690,
-      745,
-      682,
-      500,
-      749
+      //'682' //UGM 
     );
 
     // Admin id for createdby & modifiedby value
     $CREATOR_MODIFICATOR = $this->session->userdata('admin_id');
 
     // Value for kolektif_name_id in profile table
-    //    $KOLEKTIF_BATCH_INSERT_ID = '507'; // UGM - Peternakan
-    $KOLEKTIF_BATCH_INSERT_ID = '512'; // UGM FT Angkatan 15
-    //$KOLEKTIF_BATCH_INSERT_ID = '501'; // Kehutanan
-    //  $KOLEKTIF_BATCH_INSERT_ID = '505'; // TEST PSPPI ITS Surabaya
+    $KOLEKTIF_BATCH_INSERT_ID = '506'; //UPI
+    //$KOLEKTIF_BATCH_INSERT_ID = '500'; // UGM FK
+    //$KOLEKTIF_BATCH_INSERT_ID = '501'; // Kehutanan 
 
-    // Not used at the moment
+    // Not used at the moment 
     // Kolektif name should be inserted manual before running this
-    //    $KOLEKTIF_BATCH_INSERT_NAME = 'DATA TEST UGM14 SEPT2024';
-    $KOLEKTIF_BATCH_INSERT_NAME = 'UGM ANGKATAN 15A JUNI 2025';
-    //    $KOLEKTIF_BATCH_INSERT_NAME = 'UGM PSPPI KEHUTANAN JAN 2025';
+    $KOLEKTIF_BATCH_INSERT_NAME = 'UPI TEKNIKELEKTRO JUL2024';
+    //$KOLEKTIF_BATCH_INSERT_NAME = 'UGM ANGKATAN XIII FEB2024'; 
+    //$KOLEKTIF_BATCH_INSERT_NAME = 'UGM PSPPI KEHUTANAN JUN 2024';
 
-    $SCHOOL_NAME = 'UNIVERSITAS GAJAH MADA';
-    //  $SCHOOL_NAME = 'UNIVERSITAS PENDIDIKAN INDONEIA';
+    //$SCHOOL_NAME = 'UNIVERSITAS GAJAH MADA';
+    $SCHOOL_NAME = 'UNIVERSITAS PENDIDIKAN INDONEIA';
     $SCHOOL_DEGREE = 'S1';
 
     // Number of fields to be check that user is already exist
-    // Field are from fullname, no KTP,
-    //   $MIN_FIEDLS_MATCH_EXISTINGUSER = 2;
+    // Field are from fullname, no KTP, 
+    $MIN_FIEDLS_MATCH_EXISTINGUSER = 2;
 
-    // Password is disabled - User should reset her/his password from SIMPONI web login page --- Password ---
+    // Password is disabled - User should reset her/his password from SIMPONI web login page
     $__USE_DEFAULT_PASSWORD__ = TRUE;
-    $DEFAULT_PASSWORD = '$2y$10$v6zVno3AVAdMJ3Bg1r.Mc.9zDyfkDnqAGRxXXBNZzmMKXGgAiw2YS'; //Simponi@1000
+    $DEFAULT_PASSWORD = '$2a$08\$gHInWtYruHTiNCspkx6BDO0Lhf.x6Ak9nbUcV.0B6rueLG9.wJcHO' . '_DISABLED'; //Sembunyi11
 
     // Country for company address (alamat perusahaan)
     $DEFAULT_COUNTRY_NAME = 'Indonesia';
-    //	 $DEFAULT_COUNTRY_NAME = 'Timor Leste';
 
     // Set to FALSE since $this->db->insert_id() is always return 1 when using transaction.
     // Is it a bug in CI?
     $__USE_TRANSACTION__ = FALSE;
 
-    $CSV_SEPARATOR        = ';';
-    $CSV_ENCLOSURE        = '';
+    $CSV_SEPARATOR        = ',';
+    $CSV_ENCLOSURE        = '"';
     $CSV_MAX_CHARS        = null; // Unlimited number of chars in a line
-    $CSV_READ_MAX_LINES   = 220;
-    $CSV_START_DATA_ROW   = 0;
+    $CSV_READ_MAX_LINES   = 101;
+    $CSV_START_DATA_ROW   = 1;
     $CSV_MIN_COLUMN_COUNT = 18;
 
-    $CSV_DATE_FORMAT = CSV_DATE_FORMAT; //UGM: 'yyyy-mm-dd' means YYYY-MM-DD
+    $CSV_DATE_FORMAT = CSV_DATE_FORMAT; //UGM: 'Y-m-d' means YYYY-MM-DD 
     $CSV_DIR = FCPATH . $this->target_dirs['4'];
 
     // FOR SIMULATION set it to TRUE
-    // When it set to true, it will not insert data into the correct table
+    // When it set to true, it will not insert data into the correct table 
     // Instead it will create a dummy tables and insert into it
-    $__USE_DUMMY_TABLES__ = FALSE; // diganti TRUE untuk ke table Dummy
+    $__USE_DUMMY_TABLES__ = FALSE;
 
     // Dummy table prefix
     $TABLE_PREFIX_FOR_DUMMY = 'dummy_';
@@ -804,9 +800,7 @@ class Userprovisioner extends CI_Controller
     $TABLE_USER_ADDRESS = $prefix . 'user_address';
     $TABLE_USER_EXP     = $prefix . 'user_exp';
     $TABLE_USER_EDU     = $prefix . 'user_edu';
-    $TABLE_MEMBERS      = $prefix . 'members';
-    $TABLE_USER_TRANSFER  = $prefix . 'user_transfer';
-    $table_list = array($TABLE_USERS, $TABLE_USER_PROFILE, $TABLE_USER_ADDRESS, $TABLE_USER_EXP, $TABLE_USER_EDU, $TABLE_MEMBERS, $TABLE_USER_TRANSFER);
+    $table_list = array($TABLE_USERS, $TABLE_USER_PROFILE, $TABLE_USER_ADDRESS, $TABLE_USER_EXP, $TABLE_USER_EDU);
 
     $fhandle = fopen($CSV_DIR . $filename, "r");
     $rownum = 0;
@@ -820,13 +814,10 @@ class Userprovisioner extends CI_Controller
     $ext_user_id         = '';
     $email               = '';
     $no_kta              = '';
-    $status_db_education = 0;
-    $status_db_transfer  = 0;
     $status_db_users     = 0;
     $status_db_profile   = 0;
     $status_db_kolektif  = 0;
     $status_db_address   = 0;
-    $status_db_members   = 0;
     $status_db_job       = 0;
     $status_db_commit    = 0;
     $status_upload_photo = 0;
@@ -881,8 +872,7 @@ class Userprovisioner extends CI_Controller
 
     if ($fhandle !== FALSE) {
 
-      //    while ( ($getData = fgetcsv($fhandle, $CSV_MAX_CHARS, $CSV_SEPARATOR, $CSV_ENCLOSURE)) !== FALSE )
-      while (($getData = fgetcsv($fhandle, $CSV_MAX_CHARS, $CSV_SEPARATOR)) !== FALSE) {
+      while (($getData = fgetcsv($fhandle, $CSV_MAX_CHARS, $CSV_SEPARATOR, $CSV_ENCLOSURE)) !== FALSE) {
 
         $rownum++;
 
@@ -891,9 +881,6 @@ class Userprovisioner extends CI_Controller
         $ext_user_id         = '';
         $email               = '';
         $no_kta              = '';
-        $status_db_education = 0;
-        $status_db_transfer  = 0;
-        $status_db_mmembers  = 0;
         $status_db_users     = 0;
         $status_db_profile   = 0;
         $status_db_kolektif  = 0;
@@ -945,93 +932,69 @@ class Userprovisioner extends CI_Controller
           $status_db_profile    = 0;
           $status_db_kolektif   = 0;
           $status_db_address    = 0;
-          $status_db_transfer   = 0;
-          $status_db_mmembers   = 0;
           $status_db_job        = 0;
-          $status_db_education  = 0;
           $status_db_commit     = 0;
           $status_upload_photo  = 0;
           $status_upload_idcard = 0;
           $status_upload_ijazah = 0;
           $stasus_message       = '-';
 
-          $username = $getData[8]; //''; // Default value for non member is empty
+          $username = ''; // Default value for non member is empty
           $password = ($__USE_DEFAULT_PASSWORD__) ? $DEFAULT_PASSWORD : $this->generate_password();
-          $email = $getData[14];
+          $email = $getData[6];
 
           $ext_user_id = $getData[0];
 
-          $kode_wil = $getData[6];
-          $kowil = substr($kode_wil, 0, 2);
-          $kode_bk  = $getData[7];
-          $kode_kta = $getData[8];
-          $years = "25";
-          $from_date = $getData[43];
-          $thru_date = $getData[44];
-          $jenis_ang = "1";
-          $status    =  1;
-
-          $fullname       = $getData[5];
+          $fullname       = $getData[4];
           $firstname      = $this->extract_name($fullname)[0];
           $lastname       = $this->extract_name($fullname)[1];
-          $gender         = $this->gender($getData[15]);
-          $idnty_type     = $this->indentity_type($getData[22]);
-          $idnty_number   = $getData[23];
-          $birthplace     = $getData[16];
-          $birthdate      = $getData[17]; // $this->check_birthdate($getData[9], $CSV_DATE_FORMAT); Perubahan by Ipur
+          $gender         = $this->gender($getData[7]);
+          $idnty_type     = $this->indentity_type($getData[14]);
+          $idnty_number   = $getData[15];
+          $birthplace     = $getData[8];
+          $birthdate      = $this->check_birthdate($getData[9], $CSV_DATE_FORMAT);
           $birthdate_date = DateTime::createFromFormat($CSV_DATE_FORMAT, $birthdate);
-          $mobilephone    = $this->format_mobilephone($getData[24]);
-          $va             = '89699' . $getData[6] . $getData[7] . $getData[8]; // Will be generated later manually by admin using set_active()
+          $mobilephone    = $this->format_mobilephone($getData[16]);
+          $va             = ''; // Will be generated later manually by admin using set_active()
           $kolektif_batch = $KOLEKTIF_BATCH_INSERT_ID;
           $kolektif_ids   = implode(',', $KOLEKTIF_IDS);
           $createdby      = $CREATOR_MODIFICATOR;
           $modifiedby     = $CREATOR_MODIFICATOR;
 
           $addresstype = 1; // Home address
-          $address     = $getData[25];
-          $city        = $getData[26];
-          $province    = ''; //$getData[2];
-          $zipcode     = $getData[27];
-          $homephone   = $getData[28];
+          $address     = $getData[17];
+          $city        = $getData[18];
+          $province    = $getData[2];
+          $zipcode     = $getData[19];
+          $homephone   = $getData[20];
 
-          $lembaga_nama    = $getData[31];
-          $lembaga_jabatan = $getData[32];
+          $lembaga_nama    = $getData[23];
+          $lembaga_jabatan = $getData[24];
           $present_job     = 1;
-          $lembaga_alamat  = $getData[34];
-          $lembaga_kota    = $getData[35]; //NOT USED - Simponi doesn't support
+          $lembaga_alamat  = $getData[26];
+          $lembaga_kota    = $getData[27]; //NOT USED - Simponi doesn't support
           $lembaga_prov    = '';
           $lembaga_negara  = $DEFAULT_COUNTRY_NAME;
-          $lembaga_kodepos = $getData[36]; //NOT USED - Simponi doesn't support
-          $lembaga_phone   = $getData[37]; //NOT USED - Simponi doesn't support
+          $lembaga_kodepos = $getData[28]; //NOT USED - Simponi doesn't support
+          $lembaga_phone   = $getData[29]; //NOT USED - Simponi doesn't support
 
-          $photo_link = $getData[40];
-          $idcard_link = $getData[41];
-          $ijazah_link = $getData[42];
+          $photo_link = $getData[32];
+          $idcard_link = $getData[33];
+          $ijazah_link = $getData[34];
 
           $__INSERT_EXPERIENCE__ = true;
           $__INSERT_PHOTO__ = true;
           $__INSERT_IDCARD__ = true;
           $__INSERT_IJAZAH__ = true;
 
-          // ---------------------------------------
-          /*
-                    if (empty($birthdate_date)) {
-                        throw new Exception("Failed parsing user's birthdate. CSV_DATE_FORMAT: " . CSV_DATE_FORMAT .", birthdate: " .$birthdate, 1);
+          if (empty($birthdate_date)) {
+            throw new Exception("Failed parsing user's birthdate. CSV_DATE_FORMAT: " . CSV_DATE_FORMAT . ", birthdate: " . $birthdate, 1);
+          }
 
-                    }
-
-
-                    if ($idnty_type == 'Citizen' && validate_ktp($idnty_number, $birthdate_date->format('Y-m-d')) == FALSE ) {
-                        throw new Exception("Nomor KTP is not valid. Number ($idnty_number) is not match with user's birth date ($birthdate)");
-                    }
-
-*/
-          //---------------------------------------------
-
-          //                    $existing_user = $this->is_user_exist($fullname, $email, $idnty_number, $mobilephone, $birthdate_date, $MIN_FIEDLS_MATCH_EXISTINGUSER);
+          $existing_user = $this->is_user_exist($fullname, $email, $idnty_number, $mobilephone, $birthdate_date, $MIN_FIEDLS_MATCH_EXISTINGUSER);
           $existing_user_id = ($existing_user) ? @$existing_user['user_id'] : FALSE;
 
-          $no_kta = $getData[8];
+          $no_kta = $getData[12];
           $no_kta = $this->format_kta($no_kta);
 
           // KTA is exist in the database
@@ -1066,18 +1029,18 @@ class Userprovisioner extends CI_Controller
             }
             throw new Exception("KTA number is already exist. KTA: ${no_kta}, user_id: ${user_id_with_kta}");
           }
-          /*
-                    if ( $existing_user_id !== FALSE ) {
-                        throw new Exception("Similar user already exist. existing_user_id: ${existing_user_id}, fullname: '${fullname}', email: ${email}, ktp: ${idnty_number}, mobile: ${mobilephone}");
-                    }
-*/
+
+          if ($existing_user_id !== FALSE) {
+            throw new Exception("Similar user already exist. existing_user_id: ${existing_user_id}, fullname: '${fullname}', email: ${email}, ktp: ${idnty_number}, mobile: ${mobilephone}");
+          }
+
           // Start database insert
           if ($__USE_TRANSACTION__) {
             $this->db->trans_start();
           }
 
           $user_data = array(
-            'username' => $no_kta, /// $username,
+            'username' => $username,
             'password' => $password,
             'email' => $email,
           );
@@ -1130,63 +1093,6 @@ class Userprovisioner extends CI_Controller
             $rownum_messages[$rownum][] = 'SUCCESS - Insert into table: ' . $TABLE_USER_ADDRESS . ', id: ' . $addr_id;
           }
 
-          //----------------------------------------------------------------------------------- Penambahan insert ke table members by Ipur Tgl 12-06-2025 ----
-          $members_data = array(
-            'person_id'     => $user_id,
-            'code_wilayah'  => $kode_wil,
-            'code_mitra'    => 1,
-            'code_bk_hkk'   => $kode_bk,
-            'years'         => "25",       // Harus diganti sesuai tahun saat upload datanya.
-            'no_kta'        => $no_kta,
-            'from_date'     => $from_date,
-            'thru_date'     => $thru_date,
-            'jenis_anggota' => $jenis_ang,
-            'status'        => 1,
-            'created_at'    => date('Y-m-d H:i:s'),
-            'created_by'    => $createdby,
-            'updated_by'    => $modifiedby,
-            'wil_id'        => $kowil,
-          );
-
-          if ($this->db->insert($TABLE_MEMBERS, $members_data)) {
-            $members_id = $this->db->insert_id();
-            $status_db_address = $members_id;
-            $rownum_messages[$rownum][] = 'SUCCESS - Insert into table: ' . $TABLE_MEMBERS . ', id: ' . $members_id;
-          }
-
-          //-----------------------------------------------------------------------------------------------
-
-          //----------------------------------------------------------------------------------- Penambahan insert ke table user_transfer by Ipur Tgl 12-06-2025 ----
-          $user_transfer_data = array(
-            'user_id'       => $user_id,
-            'pay_type'      => 1,
-            'order_id'      => 0,
-            'rel_id'        => 0,
-            'bukti'         => "INV046-PSPPI-UGM Angkatan 15 Bach 1",       // yang Bacth 2 INV051
-            'atasnama'      => $fullname,
-            'tgl'           => "2025-06-02",
-            'status'        => 1,
-            'description'   => 'Pembayaran kolektif UGM-15',
-            'iuranpangkal'  => 100000,
-            'iurantahunan'  => 225000,
-            'sukarelatotal' => 325000,
-            'vnv_status'    => 1,
-            'remark'        => '[SIMPONI] Bulk insert 2025-06-12',
-            'createddate'   => date('Y-m-d H:i:s'),
-            'createdby'     => $createdby,
-            'modifieddate'  => date('Y-m-d H:i:s'),
-            'modifiedby'    => $createdby,
-
-          );
-
-          if ($this->db->insert($TABLE_USER_TRANSFER, $user_transfer_data)) {
-            $user_transfer_id = $this->db->insert_id();
-            $status_db_transfer = $user_transfer_id;
-            $rownum_messages[$rownum][] = 'SUCCESS - Insert into table: ' . $TABLE_USER_TRANSFER . ', id: ' . $user_transfer_id;
-          }
-
-          //-----------------------------------------------------------------------------------------------
-
           $exprience_id = null;
           if ($__INSERT_EXPERIENCE__) {
             $experince_data = array(
@@ -1231,6 +1137,7 @@ class Userprovisioner extends CI_Controller
             }
           }
 
+
           // Commit the transaction
           if ($__USE_TRANSACTION__) {
             $this->db->trans_complete();
@@ -1254,8 +1161,6 @@ class Userprovisioner extends CI_Controller
               $status_db_address,
               $status_db_job,
               $status_db_education,
-              $status_db_members,
-              $status_db_transfer,
               $status_db_commit,
               $status_upload_photo,
               $status_upload_idcard,
@@ -1317,8 +1222,6 @@ class Userprovisioner extends CI_Controller
               $status_db_profile,
               $status_db_kolektif,
               $status_db_address,
-              $status_db_members,
-              $status_db_transfer,
               $status_db_job,
               $status_db_education,
               $status_db_commit,
@@ -1350,8 +1253,6 @@ class Userprovisioner extends CI_Controller
             $status_db_profile,
             $status_db_kolektif,
             $status_db_address,
-            $status_db_members,
-            $status_db_transfer,
             $status_db_job,
             $status_db_education,
             $status_db_commit,

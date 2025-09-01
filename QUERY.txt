@@ -1,0 +1,47 @@
+============Menampilkan jumlah user yg tidak memiliki VA================
+
+SELECT COUNT(u.id) AS jumlah_users_tidak_punya_va FROM users u LEFT JOIN user_profiles up ON u.id = up.user_id WHERE up.va IS NULL OR up.va = '';
+
+
+========================== Menampilkan user_id dan email yg tidak memiliki VA===================
+
+SELECT m.no_kta, m.person_id, up.va, CASE WHEN up.va IS NULL OR up.va = '' THEN 'Belum punya VA' ELSE 'Sudah punya VA' END AS status_va FROM members m LEFT JOIN user_profiles up ON up.user_id = m.person_id HAVING status_va = 'Belum punya VA'
+
+52453 051670 Hardiansyah 
+117650 106092 Frans Daniel Andarcius Hutagalung
+39883 042989  Haeny Sun Aryono
+
+SELECT * 
+FROM user_profiles 
+WHERE user_id IN (52453, 117650, 39883);
+
+SELECT * FROM user_faip WHERE no_kta IN (51670, 106092, 42989);
+
+================================== MENAMPILKAN JUMLAH VA YG ADA DAN YG TIDAK ADA ============================
+
+SELECT 
+    COUNT(CASE WHEN va IS NOT NULL AND va <> '' THEN 1 END) AS jumlah_va_ada,
+    COUNT(CASE WHEN va IS NULL OR va = '' THEN 1 END) AS jumlah_va_kosong
+FROM user_profiles;
+
+
+================================= MENAMPILKAN JMLH DUPLICATE PAD VA DI USER_PROFILE-==========================
+SELECT va, COUNT(*) AS jumlah
+FROM user_profiles
+GROUP BY va
+HAVING COUNT(*) > 1;
+
+================================ MENAMPILKAN JUMLH DATA USER PROFILES BERDARSARKAN TAHUN ======================
+SELECT YEAR(`createddate`) AS tahun, COUNT(*) AS jumlah
+FROM user_profiles
+GROUP BY YEAR(createddate)
+ORDER BY tahun;
+
+================================ MENAMPILKAN JUMLH DATA USERS BERDARSARKAN TAHUN ======================
+SELECT YEAR(`created`) AS tahun, COUNT(*) AS jumlah
+FROM users
+GROUP BY YEAR('created')
+ORDER BY tahun;
+
+
+
